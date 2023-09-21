@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Gira-Frontend2",
-    "slug": "Gira-Frontend2",
+    "name": "Gira-Frontend",
+    "slug": "Gira-Frontend",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
