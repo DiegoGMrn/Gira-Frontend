@@ -57,11 +57,7 @@ export const ThemeContext = createContext<ThemeContextType>({
 });
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  /*const colorScheme = useColorScheme();
-  const [isDark, setIsDark] = useState(colorScheme === "dark");
-  useEffect(() => {
-    setIsDark(colorScheme === "dark");
-  }, [colorScheme]);*/
+
   const deviceColorScheme: ColorSchemeName = Appearance.getColorScheme();
   console.log(deviceColorScheme);
   const [isDark, setIsDark] = useState(deviceColorScheme === "dark");

@@ -1,0 +1,59 @@
+import React, { createContext, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface AuthContextType {
+  login: () => void;
+  logout: () => void;
+  isLoading: boolean;
+  userToken: string | null;
+}
+
+export const AuthContext = createContext<AuthContextType>({
+  login: () => {},
+  logout: () => {},
+  isLoading: false,
+  userToken: null,
+});
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [userToken, setUserToken] = useState<string | null>(null);
+  const login = () => {
+    setIsLoading(true);
+    // perform login logic here
+    setUserToken("fsafafs");
+    AsyncStorage.setItem("userToken", "fsafafs");
+    setIsLoading(false);
+    console.log(userToken);
+  
+  };
+
+  const logout = () => {
+    // perform logout logic here
+    setIsLoading(true);
+    setUserToken(null);
+    AsyncStorage.removeItem("userToken");
+    setIsLoading(false);
+  };
+
+  const isLoggedIn = async () => {
+    try {
+      const userToken = await AsyncStorage.getItem("userToken");
+      setUserToken(userToken);
+      setIsLoading(false);
+      console.log("entro")
+    } catch (error) {
+      console.log(`isLogged in error ${error}`);
+    }
+  }
+
+  useEffect(() => {
+    isLoggedIn();
+  }, [login]);
+
+  return (
+    <AuthContext.Provider value={{ login, logout, isLoading, userToken }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};

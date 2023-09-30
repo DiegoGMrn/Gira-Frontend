@@ -19,12 +19,21 @@ export default {
 };*/
 
 export const lightColors = {
-  primary: "white",
-  text: "black",
+  text: "#000",
+  textSecondary: "#726f7c",
+  background: "#fff",
+  tint: "#0ea5e9",
+  tabIconDefault: "#ccc",
+  tabIconSelected: "#008FFF",
+  bgInput: "rgba(0,0,0,0.05)",
 };
 
 export const darkColors = {
-  primary: "#121212",
   text: "#fff",
+  textSecondary: "#726f7c",
+  background: "#242424", //'#121212',
+  tint: "#bc8afb", //'#45ADFF',
+  tabIconDefault: "#ccc",
+  tabIconSelected: "#45ADFF",
+  bgInput: "#555555",
 };
-
