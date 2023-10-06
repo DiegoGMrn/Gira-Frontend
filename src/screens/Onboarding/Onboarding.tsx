@@ -28,7 +28,7 @@ interface HomeProps {
 
 function Onboarding({ navigation }: HomeProps) {
   const { dark, colors, setScheme } = useTheme();
-  //const {login, logout, isLoading, userToken} = useContext(AuthContext);
+  const {login, logout, isLoading, userToken} = useContext(AuthContext);
   const [email, onChangeEmail] = useState("");
   const [password, onChangePassword] = useState("");
 
@@ -38,16 +38,17 @@ function Onboarding({ navigation }: HomeProps) {
     }
   `;
 
-  const [login] = useMutation(login_m, {
+  const [login2] = useMutation(login_m, {
     variables: {
       loginInput: {
         clave: password,
         correo: email,
       },
     },
-    onCompleted: ({ login }) => {
+    onCompleted: ({ login2 }) => {
       navigation.navigate("Onboarding");
       console.log("Se completo");
+      login();
     },
   });
 
@@ -138,7 +139,7 @@ function Onboarding({ navigation }: HomeProps) {
           </TouchableOpacity>
 
           <View style={styles().buttonContainer}>
-            <TouchableOpacity onPress={(e) => {login()}} style={styles().button}>
+            <TouchableOpacity onPress={(e) => {login2()}} style={styles().button}>
               <Text style={styles().buttonText}>Iniciar Sesión</Text>
             </TouchableOpacity>
           </View>

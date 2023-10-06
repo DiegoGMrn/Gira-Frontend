@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   Text,
@@ -24,6 +24,8 @@ import {
 import axios from "axios";
 import { gql, useMutation } from "@apollo/client";
 import styles from "../Styles";
+import { AuthContext } from "../../context/AuthContext";
+
 interface RegisterProps {
   navigation: NavigationProp<any>; // Puedes ajustar el tipo según tu configuración
 }
@@ -33,7 +35,7 @@ function RegisterScreen({ navigation }: RegisterProps) {
   const [email, onChangeEmail] = useState("");
   const [password, onChangePassword] = useState("");
   //const [createCats, { data, loading, error }] = useMutation(register_m);
-
+  const {login, logout, isLoading, userToken} = useContext(AuthContext);
   const register_m = gql`
     mutation createUsers($userInput: CreateUserInput!) {
       createUsers(userInput: $userInput) {
@@ -51,6 +53,7 @@ function RegisterScreen({ navigation }: RegisterProps) {
       },
     },
     onCompleted: ({signup}) => {
+      login();
       navigation.goBack();
     },
   });
