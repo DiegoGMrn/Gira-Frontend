@@ -56,7 +56,6 @@ function RegisterScreen({ navigation }: RegisterProps) {
       },
     },
     onCompleted: ({signup}) => {
-      login();
       navigation.goBack();
     },
   });
