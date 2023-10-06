@@ -32,6 +32,7 @@ interface RegisterProps {
 
 function RegisterScreen({ navigation }: RegisterProps) {
   const { dark, colors, setScheme } = useTheme();
+  const [nombre, onChangeNombre] = useState("");
   const [email, onChangeEmail] = useState("");
   const [password, onChangePassword] = useState("");
   //const [createCats, { data, loading, error }] = useMutation(register_m);
@@ -49,7 +50,7 @@ function RegisterScreen({ navigation }: RegisterProps) {
   const [signup] = useMutation(register_m, {
     variables: {
       userInput: {
-        name: email,
+        name: nombre,
         clave: password,
         correo: email,
       },
@@ -94,6 +95,17 @@ function RegisterScreen({ navigation }: RegisterProps) {
 
         {/* form */}
         <View style={styles().formContainer}>
+        <View
+            /*entering={FadeInDown.duration(1000).springify()}*/
+            style={styles().inputContainer}
+          >
+            <TextInput
+              placeholder="Nombre"
+              placeholderTextColor="gray"
+              value={nombre}
+              onChangeText={(text) => onChangeNombre(text)}
+            />
+          </View>
           <View
             /*entering={FadeInDown.duration(1000).springify()}*/
             style={styles().inputContainer}
