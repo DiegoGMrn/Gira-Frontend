@@ -29,19 +29,33 @@ interface RegisterProps {
 }
 
 function RegisterScreen({ navigation }: RegisterProps) {
+  const { dark, colors, setScheme } = useTheme();
+  const [email, onChangeEmail] = useState("");
+  const [password, onChangePassword] = useState("");
+  //const [createCats, { data, loading, error }] = useMutation(register_m);
+
   const register_m = gql`
-    mutation createCats($catInput: CreateCatInput!) {
-      createCats(catInput: $catInput) {
-        id
+    mutation createUsers($userInput: CreateUserInput!) {
+      createUsers(userInput: $userInput) {
         name
         clave
       }
     }
   `;
-  const { dark, colors, setScheme } = useTheme();
-  const [email, onChangeEmail] = useState("");
-  const [password, onChangePassword] = useState("");
-  const [createCats, { data, loading, error }] = useMutation(register_m);
+
+  const [signup] = useMutation(register_m, {
+    variables: {
+      userInput: {
+        name: email,
+        clave: password,
+      },
+    },
+    onCompleted: ({signup}) => {
+      navigation.goBack();
+    },
+  });
+
+  
 
   /*
   if (loading) return console.log(JSON.stringify(loading, null, 2));
@@ -49,72 +63,6 @@ function RegisterScreen({ navigation }: RegisterProps) {
   if (data) return console.log(JSON.stringify(data, null, 2));*/
 
   return (
-    /*<View style={styles().container}>
-      <View>
-        <TouchableOpacity
-          style={styles().backButton}
-          onPress={() => navigation.navigate("Onboarding")}
-        >
-          <MaterialIcons name="west" size={25} color="gray" />
-          <Text style={styles().backText}></Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles().bodyContent}>
-        <Text style={styles().largeText}>Crear Cuenta</Text>
-        <Text style={styles().smallText}>asffasfas</Text>
-        <View style={styles().inputRow}>
-          <Ionicons name="person-outline" size={20} color="gray" />
-          <TextInput
-            placeholder="Username"
-            placeholderTextColor="gray"
-            style={styles().textInput}
-          />
-        </View>
-
-        <View style={styles().inputRow}>
-          <MaterialCommunityIcons name="email-outline" size={20} color="gray" />
-          <TextInput
-            placeholder="Email"
-            placeholderTextColor="gray"
-            style={styles().textInput}
-            value={email}
-            onChangeText={(text) => onChangeEmail(text)}
-          />
-        </View>
-        <View style={styles().inputRow}>
-          <MaterialIcons name="lock-outline" size={20} color="gray" />
-          <TextInput
-            placeholder="Password"
-            placeholderTextColor="gray"
-            secureTextEntry={true}
-            style={styles().textInput}
-            value={password}
-            onChangeText={(text) => onChangePassword(text)}
-          />
-          <Octicons name="eye-closed" size={20} color="gray" />
-        </View>
-
-        <TouchableOpacity
-          style={styles().signUpBtnWrapper}
-          onPress={(e) => {
-            e.preventDefault();
-            createCats({
-              variables: { catInput: { name: email, clave: password } },
-            }),
-              navigation.goBack(),
-              console.log(JSON.stringify(data, null, 2)); /*() => {
-            register(email, password);
-          }}
-        >
-          <Text style={styles().signUpBtnText}>SIGN UP</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles().loginBtnWrapper}>
-          <Text style={styles().loginBtnText}>
-            Already have an account? LOGIN
-          </Text>
-        </TouchableOpacity>
-      </View>
-        </View>*/
 
     <KeyboardAvoidingView
       style={styles().container}
@@ -170,14 +118,7 @@ function RegisterScreen({ navigation }: RegisterProps) {
           <View style={styles().buttonContainer}>
             <TouchableOpacity
               style={styles().button}
-              onPress={(e) => {
-                e.preventDefault();
-                createCats({
-                  variables: { catInput: { name: email, clave: password } },
-                }),
-                  navigation.goBack(),
-                  console.log(JSON.stringify(data, null, 2));
-              }}
+              onPress={(e) => {signup();}}
             >
               <Text style={styles().buttonText}>Registrarse</Text>
             </TouchableOpacity>

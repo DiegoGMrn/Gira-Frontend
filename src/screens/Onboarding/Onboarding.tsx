@@ -18,7 +18,9 @@ import Animated, {
   FadeInUp,
 } from "react-native-reanimated";
 import { AuthContext } from "../../context/AuthContext";
-
+import { useMutation } from "@apollo/client";
+import { gql } from "@apollo/client";
+import { useState } from "react";
 
 interface HomeProps {
   navigation: NavigationProp<any>; // Puedes ajustar el tipo según tu configuración
@@ -26,11 +28,32 @@ interface HomeProps {
 
 function Onboarding({ navigation }: HomeProps) {
   const { dark, colors, setScheme } = useTheme();
-  const {login, logout, isLoading, userToken} = useContext(AuthContext);
+  //const {login, logout, isLoading, userToken} = useContext(AuthContext);
+  const [email, onChangeEmail] = useState("");
+  const [password, onChangePassword] = useState("");
 
-  const handleLogin = () => {
+  const login_m = gql`
+    mutation loginUsers($loginInput: LoginUserInput!) {
+      loginUsers(loginInput: $loginInput)
+    }
+  `;
+
+  const [login] = useMutation(login_m, {
+    variables: {
+      loginInput: {
+        clave: password,
+        correo: email,
+      },
+    },
+    onCompleted: ({ login }) => {
+      navigation.navigate("Onboarding");
+      console.log("Se completo");
+    },
+  });
+
+  /*const handleLogin = () => {
     login();
-  };
+  };*/
   return (
     /*<View style={styles().container}>
       <View style={styles().illustrationWrapper}>
@@ -59,7 +82,11 @@ function Onboarding({ navigation }: HomeProps) {
     >
       <StatusBar style="light" />
       <Image
-        source={dark ? require("../../assets/BgAuthDark.png") : require("../../assets/BgAuthLight.png")}
+        source={
+          dark
+            ? require("../../assets/BgAuthDark.png")
+            : require("../../assets/BgAuthLight.png")
+        }
         style={styles().background}
       />
       {/* title and form */}
@@ -80,10 +107,13 @@ function Onboarding({ navigation }: HomeProps) {
             /*entering={FadeInDown.duration(1000).springify()}*/
             style={styles().inputContainer}
           >
-            <TextInput 
-            style={styles().input}
-            placeholder="Correo" 
-            placeholderTextColor={"gray"} />
+            <TextInput
+              style={styles().input}
+              placeholder="Correo"
+              placeholderTextColor={"gray"}
+              value={email}
+              onChangeText={(text) => onChangeEmail(text)}
+            />
           </View>
           <View
             /*entering={FadeInDown.delay(200).duration(1000).springify()}*/
@@ -94,17 +124,21 @@ function Onboarding({ navigation }: HomeProps) {
               placeholder="Contraseña"
               placeholderTextColor="gray"
               secureTextEntry
+              value={password}
+              onChangeText={(text) => onChangePassword(text)}
             />
           </View>
-          <TouchableOpacity style={styles().resetpwdContainer} >
-            <Text style={styles().resetpwdText} onPress={() => navigation.navigate("Resetpwd")}>¿Olvidaste tu contraseña?</Text>
+          <TouchableOpacity style={styles().resetpwdContainer}>
+            <Text
+              style={styles().resetpwdText}
+              onPress={() => navigation.navigate("Resetpwd")}
+            >
+              ¿Olvidaste tu contraseña?
+            </Text>
           </TouchableOpacity>
 
           <View style={styles().buttonContainer}>
-            <TouchableOpacity
-              onPress={handleLogin}
-              style={styles().button}
-            >
+            <TouchableOpacity onPress={(e) => {login()}} style={styles().button}>
               <Text style={styles().buttonText}>Iniciar Sesión</Text>
             </TouchableOpacity>
           </View>
