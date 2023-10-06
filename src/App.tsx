@@ -20,11 +20,6 @@ import AppNav from "./navigation/Appnav";
 
 export default function App() {
   
- /*useEffect(() => {
-    setUpdateCount(updateCount + 1);
-  }, [userToken]);
-
-  console.log("user", userToken);*/
   return (
     <ThemeProvider>
       <AuthProvider>

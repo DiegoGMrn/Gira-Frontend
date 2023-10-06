@@ -41,6 +41,7 @@ function RegisterScreen({ navigation }: RegisterProps) {
       createUsers(userInput: $userInput) {
         name
         clave
+        correo
       }
     }
   `;
@@ -50,6 +51,7 @@ function RegisterScreen({ navigation }: RegisterProps) {
       userInput: {
         name: email,
         clave: password,
+        correo: email,
       },
     },
     onCompleted: ({signup}) => {

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState  } from "react";
 import {
   View,
   Text,
@@ -12,25 +12,20 @@ import { useTheme } from "../../components/ThemeProvider";
 import { NavigationProp } from "@react-navigation/native";
 import styles from "../Styles";
 import { StatusBar } from "expo-status-bar";
-import Animated, {
-  FadeIn,
-  FadeInDown,
-  FadeInUp,
-} from "react-native-reanimated";
 import { AuthContext } from "../../context/AuthContext";
 import { useMutation } from "@apollo/client";
 import { gql } from "@apollo/client";
-import { useState } from "react";
 
 interface HomeProps {
   navigation: NavigationProp<any>; // Puedes ajustar el tipo según tu configuración
 }
 
-function Onboarding({ navigation }: HomeProps) {
+const Onboarding = ({ navigation }: HomeProps) => {
   const { dark, colors, setScheme } = useTheme();
-  const {login, logout, isLoading, userToken} = useContext(AuthContext);
+  const { isLoading, userToken } = useContext(AuthContext);
   const [email, onChangeEmail] = useState("");
   const [password, onChangePassword] = useState("");
+  const [loginError, setLoginError] = useState("");
 
   const login_m = gql`
     mutation loginUsers($loginInput: LoginUserInput!) {
@@ -38,43 +33,29 @@ function Onboarding({ navigation }: HomeProps) {
     }
   `;
 
-  const [login2] = useMutation(login_m, {
+  const [login2, { loading }] = useMutation(login_m, {
     variables: {
       loginInput: {
         clave: password,
         correo: email,
       },
     },
-    onCompleted: ({ login2 }) => {
-      navigation.navigate("Onboarding");
-      console.log("Se completo");
-      login();
+    onCompleted: (data) => {
+      const login2Response = data.loginUsers;
+      console.log(login2Response);
+      if (login2Response === true) {
+        console.log("Se completo");
+        login();
+      } else {
+        alert("Correo o contraseña inválidos");
+        //setLoginError("Correo o contraseña inválidos");
+      }
     },
   });
 
-  /*const handleLogin = () => {
-    login();
-  };*/
+  const { login } = useContext(AuthContext);
+
   return (
-    /*<View style={styles().container}>
-      <View style={styles().illustrationWrapper}>
-        <Image source={require('../../assets/HomeScreenillust.png')} style={styles().illustrationContent} />
-      </View>
-      <Text style={styles().largeText}>Gestión de {'\n'}Tareas</Text>
-      <Text style={styles().smallText}>
-        Bienvenido a la aplicación de gestión de tareas. {'\n'}Para continuar, inicia sesión o registrate.
-      </Text>
-      <TouchableOpacity
-        style={styles().loginBtnWrapper}
-        onPress={() => navigation.navigate('Login')}>
-        <Text style={styles().loginBtnText}>Iniciar Sesión</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles().signUpBtnWrapper}
-        onPress={() => navigation.navigate('Register')}>
-        <Text style={styles().signUpBtnText}>Registrarse</Text>
-      </TouchableOpacity>
-    </View>*/
     <KeyboardAvoidingView
       style={styles().container}
       behavior={Platform.OS === "ios" ? "padding" : "height"} // Solo establece 'padding' en iOS
@@ -94,20 +75,12 @@ function Onboarding({ navigation }: HomeProps) {
       <View style={styles().titleFormContainer}>
         {/* title */}
         <View style={styles().titleContainer}>
-          <Text
-            /*entering={FadeInUp.duration(1000).springify()}*/
-            style={styles().titleText}
-          >
-            GIRA
-          </Text>
+          <Text style={styles().titleText}>GIRA</Text>
         </View>
 
         {/* form */}
         <View style={styles().formContainer}>
-          <View
-            /*entering={FadeInDown.duration(1000).springify()}*/
-            style={styles().inputContainer}
-          >
+          <View style={styles().inputContainer}>
             <TextInput
               style={styles().input}
               placeholder="Correo"
@@ -116,10 +89,7 @@ function Onboarding({ navigation }: HomeProps) {
               onChangeText={(text) => onChangeEmail(text)}
             />
           </View>
-          <View
-            /*entering={FadeInDown.delay(200).duration(1000).springify()}*/
-            style={styles().inputContainer}
-          >
+          <View style={styles().inputContainer}>
             <TextInput
               style={styles().input}
               placeholder="Contraseña"
@@ -138,18 +108,26 @@ function Onboarding({ navigation }: HomeProps) {
             </Text>
           </TouchableOpacity>
 
+          {loginError ? (
+            <Text style={styles().errorText}>{loginError}</Text>
+          ) : null}
+
           <View style={styles().buttonContainer}>
-            <TouchableOpacity onPress={(e) => {login2()}} style={styles().button}>
+            <TouchableOpacity
+              onPress={(e) => {
+                login2();
+              }}
+              style={styles().button}
+            >
               <Text style={styles().buttonText}>Iniciar Sesión</Text>
             </TouchableOpacity>
           </View>
 
-          <View
-            /*entering={FadeInDown.delay(400).duration(1000).springify()}*/
-            style={styles().signUpContainer}
-          >
+          <View style={styles().signUpContainer}>
             <Text style={styles().signUpText}>¿No tienes una cuenta? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Register")}
+            >
               <Text style={styles().signUpLink}>Registrate</Text>
             </TouchableOpacity>
           </View>
@@ -157,85 +135,6 @@ function Onboarding({ navigation }: HomeProps) {
       </View>
     </KeyboardAvoidingView>
   );
-}
-
-/*const stylesss = StyleSheet.create({
-  container: {
-    backgroundColor: "white",
-    flex: 1,
-  },
-  statusBar: {
-    backgroundColor: "transparent", // Ajusta el color de la barra de estado según tus necesidades
-  },
-  background: {
-    position: "absolute",
-    height: "100%",
-    width: "100%",
-  },
-  titleFormContainer: {
-    flex: 1,
-    justifyContent: "space-around",
-    paddingTop: 140,
-    paddingBottom: 40,
-  },
-  titleContainer: {
-    alignItems: "center",
-  },
-  titleText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 48,
-  },
-  formContainer: {
-    alignItems: "center",
-    marginHorizontal: 20,
-    marginTop: 16,
-  },
-  inputContainer: {
-    backgroundColor: "rgba(0,0,0,0.05)", // Ajusta el color de fondo según tus necesidades
-    padding: 10,
-    borderRadius: 16,
-    width: "100%",
-    marginBottom: 10,
-  },
-  input: {
-    color: "black",
-  },
-  buttonContainer: {
-    width: "100%",
-  },
-  button: {
-    backgroundColor: "#0ea5e9", // Cambia esto al color deseado
-    padding: 12,
-    borderRadius: 16,
-    marginBottom: 10,
-  },
-  buttonText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "white",
-    textAlign: "center",
-  },
-  signUpContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-  },
-  signUpText: {
-    color: "black",
-  },
-  signUpLink: {
-    color: "#00BFFF", // Cambia esto al color deseado
-    fontWeight: "bold",
-  },
-  resetpwdContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    paddingBottom: 10,
-  },
-  resetpwdText: {
-    color: "black",
-    textAlign: "right",
-  },
-});*/
+};
 
 export default Onboarding;

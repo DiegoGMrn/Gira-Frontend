@@ -83,6 +83,10 @@ const styles = () => {
         textAlign: "right",
         fontWeight: "bold",
       },
+      errorText: {
+        color: "red",
+        textAlign: "center",
+      },
   });
 };
 
