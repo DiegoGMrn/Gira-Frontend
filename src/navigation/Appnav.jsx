@@ -9,6 +9,7 @@ const AppNav = () => {
   const { isLoading, userToken } = useContext(AuthContext);
   const [updateCount, setUpdateCount] = useState(0);
   console.log("user", userToken);
+  console.log("comparacion",userToken == "" ? "true" : "false");
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -19,7 +20,7 @@ const AppNav = () => {
 
   return (
     <NavigationContainer>
-      {userToken !== null ? <AuthStack /> : <AppStack />}
+      {userToken == "" ? <AuthStack /> : <AppStack />}
     </NavigationContainer>
   );
 }

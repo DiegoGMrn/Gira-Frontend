@@ -40,16 +40,16 @@ function Home({ navigation }: HomeProps) {
     logout();
   }
   const login_m = gql`
-    mutation resetPassword($resetPasswordInput: resetPasswordInput!) {
+    mutation resetPassword($resetPasswordInput: UpdatePasswordInput!) {
       resetPassword(resetPasswordInput: $resetPasswordInput)
-    }
+      }
+
   `;
   const [changePassword] = useMutation(login_m, {
     variables: {
       resetPasswordInput: {
-        correo: email,
-        contraseña: password,
-        nuevaContraseña: newpassword,
+        claveAntigua: password,
+        claveNueva: newpassword,
       },
     },
     onCompleted: (data) => {
@@ -58,7 +58,7 @@ function Home({ navigation }: HomeProps) {
       if (response != "") {
         console.log("Se completo");
       } else {
-        alert("Correo o contraseña inválidos");
+        alert("No se pudo cambiar la contraseña");
         //setLoginError("Correo o contraseña inválidos");
       }
     },

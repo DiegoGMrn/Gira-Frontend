@@ -1,4 +1,4 @@
-import React, { useContext, useState  } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -28,8 +28,8 @@ const Onboarding = ({ navigation }: HomeProps) => {
   const [loginError, setLoginError] = useState("");
 
   const login_m = gql`
-    mutation loginUsers($loginInput: LoginUserInput!) {
-      loginUsers(loginInput: $loginInput)
+    mutation loginUsersTest($loginInput: LoginUserInput!) {
+      loginUsersTest(loginInput: $loginInput)
     }
   `;
 
@@ -41,14 +41,13 @@ const Onboarding = ({ navigation }: HomeProps) => {
       },
     },
     onCompleted: (data) => {
-      const token = data.loginUsers;
+      const token = data.loginUsersTest;
       console.log(token);
       if (token != "") {
         console.log("Se completo");
         login(token);
       } else {
-        alert("Correo o contraseña inválidos");
-        //setLoginError("Correo o contraseña inválidos");
+        setLoginError("Correo o contraseña inválidos.");
       }
     },
   });
@@ -80,6 +79,20 @@ const Onboarding = ({ navigation }: HomeProps) => {
 
         {/* form */}
         <View style={styles().formContainer}>
+        {loginError ? (
+            <Text
+              style={{
+                color: "red",
+                textAlign: "center",
+                fontSize: 15,
+                width: "100%",
+                paddingBottom: 0,
+              }}
+            >
+              {loginError}
+            </Text>
+          ) : null}
+        
           <View style={styles().inputContainer}>
             <TextInput
               style={styles().input}
@@ -99,6 +112,7 @@ const Onboarding = ({ navigation }: HomeProps) => {
               onChangeText={(text) => onChangePassword(text)}
             />
           </View>
+          
           <TouchableOpacity style={styles().resetpwdContainer}>
             <Text
               style={styles().resetpwdText}
@@ -108,9 +122,7 @@ const Onboarding = ({ navigation }: HomeProps) => {
             </Text>
           </TouchableOpacity>
 
-          {loginError ? (
-            <Text style={styles().errorText}>{loginError}</Text>
-          ) : null}
+          
 
           <View style={styles().buttonContainer}>
             <TouchableOpacity
@@ -125,9 +137,7 @@ const Onboarding = ({ navigation }: HomeProps) => {
 
           <View style={styles().signUpContainer}>
             <Text style={styles().signUpText}>¿No tienes una cuenta? </Text>
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Register")}
-            >
+            <TouchableOpacity onPress={() => navigation.navigate("Register")}>
               <Text style={styles().signUpLink}>Registrate</Text>
             </TouchableOpacity>
           </View>
