@@ -18,11 +18,11 @@ export const AuthContext = createContext<AuthContextType>({
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [userToken, setUserToken] = useState("");
-  const login = (token: string) => {
+  const login = async (token: string) => {
     setIsLoading(true);
     setUserToken(token);
-    AsyncStorage.setItem("userToken", token);
-
+    await AsyncStorage.setItem("userToken", token);
+    
     setIsLoading(false);
     console.log(userToken);
   };

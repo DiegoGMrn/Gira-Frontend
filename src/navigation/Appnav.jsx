@@ -4,10 +4,12 @@ import AuthStack from "./AuthStack";
 import AppStack from "./AppStack";
 import { AuthContext } from "../context/AuthContext";
 import { View, ActivityIndicator } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AppNav = () => {
   const { isLoading, userToken } = useContext(AuthContext);
   const [updateCount, setUpdateCount] = useState(0);
+  
   console.log("user", userToken);
   console.log("comparacion",userToken == "" ? "true" : "false");
   if (isLoading) {

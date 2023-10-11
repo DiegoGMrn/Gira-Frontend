@@ -53,7 +53,7 @@ function Home({ navigation }: HomeProps) {
       },
     },
     onCompleted: (data) => {
-      const response = data.resetPasswordInput;
+      const response = data.resetPassword;
       console.log(response);
       if (response != "") {
         console.log("Se completo");
