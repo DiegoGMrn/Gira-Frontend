@@ -1,6 +1,7 @@
 import { StyleSheet } from "react-native";
 import { useTheme } from "../components/ThemeProvider";
 
+
 const styles = () => {
   const { dark, colors, setScheme } = useTheme();
   return StyleSheet.create({
@@ -19,7 +20,7 @@ const styles = () => {
       titleFormContainer: {
         flex: 1,
         justifyContent: "space-around",
-        paddingTop: 100,
+        paddingTop: 30,
         paddingBottom: 40,
       },
       titleContainer: {
@@ -35,13 +36,14 @@ const styles = () => {
         alignItems: "center",
         marginHorizontal: 20,
         marginTop: 16,
+        
       },
       inputContainer: {
         backgroundColor: colors.bgInput, // Ajusta el color de fondo según tus necesidades
         padding: 10,
         borderRadius: 16,
         width: "100%",
-        marginBottom: 10,
+        marginTop: 10,
       },
       input: {
         color: colors.text,
@@ -84,8 +86,10 @@ const styles = () => {
         fontWeight: "bold",
       },
       errorText: {
+        //align to left
         color: "red",
-        textAlign: "center",
+        textAlign: "left",
+        fontSize: 12,
       },
   });
 };

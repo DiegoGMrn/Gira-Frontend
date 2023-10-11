@@ -19,6 +19,7 @@ export default {
 };*/
 
 export const lightColors = {
+  primary: "#0ea5e9",
   text: "#000",
   textSecondary: "#726f7c",
   background: "#fff",
@@ -29,6 +30,7 @@ export const lightColors = {
 };
 
 export const darkColors = {
+  primary: "#141b1e",
   text: "#fff",
   textSecondary: "#726f7c",
   background: "#242424", //'#121212',

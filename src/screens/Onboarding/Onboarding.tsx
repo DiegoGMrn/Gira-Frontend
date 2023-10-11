@@ -33,7 +33,7 @@ const Onboarding = ({ navigation }: HomeProps) => {
     }
   `;
 
-  const [login2, { loading }] = useMutation(login_m, {
+  const [login2] = useMutation(login_m, {
     variables: {
       loginInput: {
         clave: password,
@@ -41,11 +41,11 @@ const Onboarding = ({ navigation }: HomeProps) => {
       },
     },
     onCompleted: (data) => {
-      const login2Response = data.loginUsers;
-      console.log(login2Response);
-      if (login2Response === true) {
+      const token = data.loginUsers;
+      console.log(token);
+      if (token != "") {
         console.log("Se completo");
-        login();
+        login(token);
       } else {
         alert("Correo o contraseña inválidos");
         //setLoginError("Correo o contraseña inválidos");
