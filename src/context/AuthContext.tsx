@@ -27,11 +27,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     console.log(userToken);
   };
 
-  const logout = () => {
+  const logout = async () => {
     // perform logout logic here
     setIsLoading(true);
     setUserToken("");
-    AsyncStorage.removeItem("userToken");
+    await AsyncStorage.removeItem("userToken");
     setIsLoading(false);
   };
 

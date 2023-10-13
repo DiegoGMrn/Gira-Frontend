@@ -16,17 +16,14 @@ import { useContext, useEffect, useState } from "react";
 import { AuthContext, AuthProvider } from "./context/AuthContext";
 import AppNav from "./navigation/Appnav";
 
-
-
 export default function App() {
-  
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <ApolloProvider client={client}>
+        <AuthProvider>
+          <ApolloProvider client={client}>
             <AppNav />
-        </ApolloProvider>
-      </AuthProvider>
+          </ApolloProvider>
+        </AuthProvider>
     </ThemeProvider>
   );
 }

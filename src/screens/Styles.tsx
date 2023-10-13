@@ -20,7 +20,7 @@ const styles = () => {
       titleFormContainer: {
         flex: 1,
         justifyContent: "space-around",
-        paddingTop: 30,
+        paddingTop: "auto",
         paddingBottom: 40,
       },
       titleContainer: {
@@ -70,10 +70,13 @@ const styles = () => {
       },
       signUpText: {
         color: colors.text,
+        fontSize: 13,
       },
       signUpLink: {
         color: colors.tint, // Cambia esto al color deseado
+        fontFamily: "Poppins_Regular",
         fontWeight: "bold",
+
       },
       resetpwdContainer: {
         flexDirection: "row",

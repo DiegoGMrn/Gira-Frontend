@@ -1,149 +1,291 @@
-import React, { useContext, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   View,
   Text,
+  StatusBar,
+  SafeAreaView,
   TouchableOpacity,
-  Image,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
+  FlatList,
+  ImageBackground,
 } from "react-native";
+import Sizes from "../../constants/Sizes";
 import { useTheme } from "../../components/ThemeProvider";
+import AntDesignIcons from "react-native-vector-icons/AntDesign";
+import data from "../../data/onboarding";
 import { NavigationProp } from "@react-navigation/native";
-import styles from "../Styles";
-import { StatusBar } from "expo-status-bar";
-import { AuthContext } from "../../context/AuthContext";
-import { useMutation } from "@apollo/client";
-import { gql } from "@apollo/client";
 
-interface HomeProps {
-  navigation: NavigationProp<any>; // Puedes ajustar el tipo según tu configuración
+interface OnboardingProps {
+  navigation: NavigationProp<any>;
 }
 
-const Onboarding = ({ navigation }: HomeProps) => {
+const Onboarding = ({navigation}: OnboardingProps) => {
+  const flatlistRef = useRef<FlatList>(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [viewableItems, setViewableItems] = useState([]);
   const { dark, colors, setScheme } = useTheme();
-  const { isLoading, userToken } = useContext(AuthContext);
-  const [email, onChangeEmail] = useState("");
-  const [password, onChangePassword] = useState("");
-  const [loginError, setLoginError] = useState("");
-
-  const login_m = gql`
-    mutation loginUsersTest($loginInput: LoginUserInput!) {
-      loginUsersTest(loginInput: $loginInput)
-    }
-  `;
-
-  const [login2] = useMutation(login_m, {
-    variables: {
-      loginInput: {
-        clave: password,
-        correo: email,
-      },
-    },
-    onCompleted: (data) => {
-      const token = data.loginUsersTest;
-      console.log(token);
-      if (token != "") {
-        console.log("Se completo");
-        login(token);
-      } else {
-        setLoginError("Correo o contraseña inválidos.");
-      }
-    },
+  const handleViewableItemsChanged = useRef(({ viewableItems }) => {
+    setViewableItems(viewableItems);
   });
+  useEffect(() => {
+    if (!viewableItems[0] || currentPage === viewableItems[0].index) return;
+    setCurrentPage(viewableItems[0].index);
+  }, [viewableItems]);
 
-  const { login } = useContext(AuthContext);
+  const handleNext = () => {
+    if (currentPage == data.length - 1) return;
 
-  return (
-    <KeyboardAvoidingView
-      style={styles().container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"} // Solo establece 'padding' en iOS
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -150} // Ajusta el valor según tus necesidades
-      enabled={Platform.OS === "ios"} // Habilita solo en iOS
-    >
-      <StatusBar style="light" />
-      <Image
-        source={
-          dark
-            ? require("../../assets/BgAuthDark.png")
-            : require("../../assets/BgAuthLight.png")
-        }
-        style={styles().background}
-      />
-      {/* title and form */}
-      <View style={styles().titleFormContainer}>
-        {/* title */}
-        <View style={styles().titleContainer}>
-          <Text style={styles().titleText}>GIRA</Text>
-        </View>
+    flatlistRef.current.scrollToIndex({
+      animated: true,
+      index: currentPage + 1,
+    });
+  };
 
-        {/* form */}
-        <View style={styles().formContainer}>
-        {loginError ? (
-            <Text
+  const handleBack = () => {
+    if (currentPage == 0) return;
+    flatlistRef.current.scrollToIndex({
+      animated: true,
+      index: currentPage - 1,
+    });
+  };
+
+  const handleSkipToEnd = () => {
+    flatlistRef.current.scrollToIndex({
+      animate: true,
+      index: data.length - 1,
+    });
+  };
+
+  const renderTopSection = () => {
+    return (
+      <SafeAreaView>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingHorizontal: Sizes.base * 2,
+          }}
+        >
+          {/* Back button */}
+          <TouchableOpacity
+            onPress={handleBack}
+            style={{
+              padding: Sizes.base,
+            }}
+          >
+            {/* Back icon */}
+            {/* Hide back button on 1st screen */}
+            <AntDesignIcons
+              name="left"
               style={{
-                color: "red",
-                textAlign: "center",
-                fontSize: 15,
-                width: "100%",
-                paddingBottom: 0,
+                fontSize: 25,
+                color: colors.text,
+                opacity: currentPage == 0 ? 0 : 1,
               }}
-            >
-              {loginError}
-            </Text>
-          ) : null}
-        
-          <View style={styles().inputContainer}>
-            <TextInput
-              style={styles().input}
-              placeholder="Correo"
-              placeholderTextColor={"gray"}
-              value={email}
-              onChangeText={(text) => onChangeEmail(text)}
             />
-          </View>
-          <View style={styles().inputContainer}>
-            <TextInput
-              style={styles().input}
-              placeholder="Contraseña"
-              placeholderTextColor="gray"
-              secureTextEntry
-              value={password}
-              onChangeText={(text) => onChangePassword(text)}
-            />
-          </View>
-          
-          <TouchableOpacity style={styles().resetpwdContainer}>
-            <Text
-              style={styles().resetpwdText}
-              onPress={() => navigation.navigate("Resetpwd")}
-            >
-              ¿Olvidaste tu contraseña?
-            </Text>
           </TouchableOpacity>
 
-          
-
-          <View style={styles().buttonContainer}>
-            <TouchableOpacity
-              onPress={(e) => {
-                login2();
+          {/* Skip button */}
+          {/* Hide Skip button on last screen */}
+          <TouchableOpacity onPress={handleSkipToEnd}>
+            <Text
+              style={{
+                fontSize: 18,
+                color: colors.tint,
+                opacity: currentPage == data.length - 1 ? 0 : 1,
               }}
-              style={styles().button}
             >
-              <Text style={styles().buttonText}>Iniciar Sesión</Text>
-            </TouchableOpacity>
+              Saltar
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  };
+
+  const renderBottomSection = () => {
+    return (
+      <SafeAreaView>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingHorizontal: Sizes.base * 2,
+            paddingVertical: Sizes.base * 2,
+          }}
+        >
+          {/* Pagination */}
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            {
+              // No. of dots
+              [...Array(data.length)].map((_, index) => (
+                <View
+                  key={index}
+                  style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: 5,
+                    backgroundColor:
+                      index == currentPage
+                        ? colors.tint
+                        : colors.tint + "20",
+                    marginRight: 8,
+                  }}
+                />
+              ))
+            }
           </View>
 
-          <View style={styles().signUpContainer}>
-            <Text style={styles().signUpText}>¿No tienes una cuenta? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-              <Text style={styles().signUpLink}>Registrate</Text>
+          {/* Next or GetStarted button */}
+          {/* Show or Hide Next button & GetStarted button by screen */}
+          {currentPage != data.length - 1 ? (
+            <TouchableOpacity
+              onPress={handleNext}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 60,
+                height: 60,
+                borderRadius: 30,
+                backgroundColor: colors.tint,
+              }}
+              activeOpacity={0.8}
+            >
+              <AntDesignIcons
+                name="right"
+                style={{ fontSize: 18, color: "white", opacity: 0.3 }}
+              />
+              <AntDesignIcons
+                name="right"
+                style={{ fontSize: 25, color: "white", marginLeft: -15 }}
+              />
             </TouchableOpacity>
-          </View>
+          ) : (
+            // Get Started Button
+            <TouchableOpacity
+              style={{
+                paddingHorizontal: Sizes.base * 2,
+                height: 60,
+                borderRadius: 30,
+                backgroundColor: colors.tint,
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onPress={() => navigation.navigate("Login")}
+            >
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 18,
+                  marginLeft: Sizes.base,
+                }}
+              >
+                Empezar
+              </Text>
+              <AntDesignIcons
+                name="right"
+                style={{
+                  fontSize: 18,
+                  color: "white",
+                  opacity: 0.3,
+                  marginLeft: Sizes.base,
+                }}
+              />
+              <AntDesignIcons
+                name="right"
+                style={{ fontSize: 25, color: "white", marginLeft: -15 }}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
+      </SafeAreaView>
+    );
+  };
+
+  const renderFlatlistItem = ({ item }) => {
+    return (
+      <View
+        style={{
+          width: Sizes.width,
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <View
+          style={{
+            alignItems: "center",
+            marginVertical: Sizes.base * 2,
+          }}
+        >
+          <ImageBackground
+            source={item.img}
+            style={{ width: 335, height: 335 }}
+            resizeMode="contain"
+          />
+        </View>
+        <View
+          style={{
+            paddingHorizontal: Sizes.base * 4,
+            marginVertical: Sizes.base * 4,
+          }}
+        >
+          <Text
+            style={{ fontSize: 30, textAlign: "center", fontWeight: "bold", color: colors.tint}}
+          >
+            {item.title}
+          </Text>
+          <Text
+            style={{
+              fontSize: 18,
+              opacity: 0.8,
+              textAlign: "center",
+              marginTop: 15,
+              lineHeight: 28,
+              color: colors.text,
+            }}
+          >
+            {item.description}
+          </Text>
         </View>
       </View>
-    </KeyboardAvoidingView>
+    );
+  };
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: colors.background2,
+        justifyContent: "center",
+      }}
+    >
+      <StatusBar barStyle={dark ? "light-content" : "dark-content"} backgroundColor={colors.background2} />
+
+      {/* TOP SECTION - Back & Skip button */}
+      {renderTopSection()}
+
+      {/* FLATLIST with pages */}
+      <FlatList
+        data={data}
+        pagingEnabled
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(item) => item._id}
+        renderItem={renderFlatlistItem}
+        ref={flatlistRef}
+        onViewableItemsChanged={handleViewableItemsChanged.current}
+        viewabilityConfig={{ viewAreaCoveragePercentThreshold: 100 }}
+        initialNumToRender={1}
+        extraData={Sizes.width}
+      />
+
+      {/* BOTTOM SECTION - pagination & next or GetStarted button */}
+      {renderBottomSection()}
+    </View>
   );
 };
 
