@@ -122,13 +122,16 @@ import { useTheme } from "../../components/ThemeProvider";
 import Display from "../../utils/Display";
 import { NavigationProp } from "@react-navigation/native";
 
-interface ForgotPasswordScreenProps {
+interface ChangePasswordScreenProps {
   navigation: NavigationProp<any>;
 }
 
-const ForgotPasswordScreen = ({ navigation }: ForgotPasswordScreenProps) => {
+const ChangePasswordScreen = ({ navigation }: ChangePasswordScreenProps) => {
+  const [isPasswordShow, setIsPasswordShow] = useState(false);
   const { dark, colors, setScheme } = useTheme();
   const [email, onChangeEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, onChangeConfirmPassword] = useState("");
   return (
     <KeyboardAvoidingView
       style={[styles.container, { backgroundColor: colors.background2 }]}
@@ -147,31 +150,68 @@ const ForgotPasswordScreen = ({ navigation }: ForgotPasswordScreenProps) => {
           onPress={() => navigation.goBack()}
         />
         <Text style={[styles.headerTitle, { color: colors.tint }]}>
-          ¿Olvidaste tu contraseña?
+          Cambiar Contraseña
         </Text>
       </View>
       <Text style={[styles.title, { color: colors.text }]}>
-        Restablecer Contraseña
+        Cambiar Contraseña
       </Text>
       <Text style={[styles.content, { color: colors.text }]}>
-        Ingresa tu correo electrónico para restablecer tu contraseña.
+        Ingresa tu nueva contraseña.
       </Text>
       <View
         style={[styles.inputContainer, { backgroundColor: colors.bgInput }]}
       >
         <View style={styles.inputSubContainer}>
           <Feather
-            name="mail"
+            name="lock"
             size={22}
             color={"grey"}
             style={{ marginRight: 10 }}
           />
           <TextInput
-            placeholder="Email"
+            secureTextEntry={isPasswordShow ? false : true}
+            placeholder="Contraseña"
             placeholderTextColor={"grey"}
             selectionColor={"grey"}
             style={[styles.inputText, { color: colors.text }]}
-            onChangeText={(text) => onChangeEmail(text)}
+            onChangeText={(text) => setPassword(text)}
+          />
+          <Feather
+            name={isPasswordShow ? "eye" : "eye-off"}
+            size={22}
+            color={"grey"}
+            style={{ marginRight: 10 }}
+            onPress={() => setIsPasswordShow(!isPasswordShow)}
+          />
+        </View>
+      </View>
+      {}
+      <Text style={styles.errorMessage}></Text>
+      <View
+        style={[styles.inputContainer, { backgroundColor: colors.bgInput }]}
+      >
+        <View style={styles.inputSubContainer}>
+          <Feather
+            name="lock"
+            size={22}
+            color={"grey"}
+            style={{ marginRight: 10 }}
+          />
+          <TextInput
+            secureTextEntry={isPasswordShow ? false : true}
+            placeholder="Confirmar contraseña"
+            placeholderTextColor={"grey"}
+            selectionColor={"grey"}
+            style={[styles.inputText, { color: colors.text }]}
+            onChangeText={(text) => onChangeConfirmPassword(text)}
+          />
+          <Feather
+            name={isPasswordShow ? "eye" : "eye-off"}
+            size={22}
+            color={"grey"}
+            style={{ marginRight: 10 }}
+            onPress={() => setIsPasswordShow(!isPasswordShow)}
           />
         </View>
       </View>
@@ -184,7 +224,7 @@ const ForgotPasswordScreen = ({ navigation }: ForgotPasswordScreenProps) => {
             navigation.navigate("Validationcode", { email: email });
           }}
         >
-          Restablecer Contraseña
+          Cambiar Contraseña
         </Text>
       </TouchableOpacity>
     </KeyboardAvoidingView>
@@ -258,6 +298,15 @@ const styles = StyleSheet.create({
     color: "white",
     fontFamily: "Poppins_Medium",
   },
+  errorMessage: {
+    fontSize: 10,
+    lineHeight: 10 * 1.4,
+    color: "red",
+    fontFamily: "Poppins_Medium",
+    marginHorizontal: 20,
+    marginTop: 3,
+    marginBottom: 10,
+  },
 });
 
-export default ForgotPasswordScreen;
+export default ChangePasswordScreen;

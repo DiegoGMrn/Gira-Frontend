@@ -79,7 +79,7 @@ const Onboarding = ({navigation}: OnboardingProps) => {
               name="left"
               style={{
                 fontSize: 25,
-                color: colors.text,
+                color: colors.tint,
                 opacity: currentPage == 0 ? 0 : 1,
               }}
             />

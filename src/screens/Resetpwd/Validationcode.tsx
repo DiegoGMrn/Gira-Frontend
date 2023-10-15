@@ -50,7 +50,6 @@ const Validationcode = ({ navigation }: ValidationCodeProps, {route}: Validation
     Poppins_Back: require("../../assets/fonts/Poppins-Black.ttf"),
     Poppins_Medium: require("../../assets/fonts/Poppins-Medium.ttf"),
   });
-  console.log("route", route);
   useEffect(() => {
     async function prepare() {
       await SplashScreen.preventAutoHideAsync();
@@ -64,91 +63,13 @@ const Validationcode = ({ navigation }: ValidationCodeProps, {route}: Validation
     }
   }, [fontsLoaded]);
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    headerContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      paddingVertical: 10,
-      paddingHorizontal: 20,
-    },
-    headerTitle: {
-      fontSize: 20,
-      fontFamily: "Poppins_Medium",
-      lineHeight: 20 * 1.4,
-      width: "80%",
-      textAlign: "center",
-      color: colors.text,
-    },
-    title: {
-      fontSize: 20,
-      fontFamily: "Poppins_Medium",
-      lineHeight: 20 * 1.4,
-      marginTop: 50,
-      marginBottom: 10,
-      marginHorizontal: 20,
-      color: colors.text,
-    },
-    content: {
-      fontSize: 20,
-      fontFamily: "Poppins_Medium",
-      marginTop: 10,
-      marginBottom: 20,
-      marginHorizontal: 20,
-      color: colors.text,
-    },
-    phoneNumberText: {
-      fontSize: 18,
-      fontFamily: "Poppins_Regular",
-      lineHeight: 18 * 1.4,
-      color: colors.tint,
-    },
-    otpContainer: {
-      marginHorizontal: 20,
-      marginBottom: 20,
-      justifyContent: "space-evenly",
-      alignItems: "center",
-      flexDirection: "row",
-    },
-    otpBox: {
-      borderRadius: 5,
-      borderColor: colors.tint,
-      borderWidth: 0.5,
-    },
-    otpText: {
-      fontSize: 25,
-      color: colors.text,
-      padding: 0,
-      textAlign: "center",
-      paddingHorizontal: 18,
-      paddingVertical: 10,
-    },
-    signinButton: {
-      backgroundColor: colors.tint,
-      borderRadius: 8,
-      marginHorizontal: 20,
-      height: 50,
-      justifyContent: "center",
-      alignItems: "center",
-      marginTop: 20,
-    },
-    signinButtonText: {
-      fontSize: 18,
-      lineHeight: 18 * 1.4,
-      color: "white",
-      fontFamily: "Poppins_Medium",
-    },
-  });
 
   if (!fontsLoaded) return null;
   return (
-    <KeyboardAvoidingView style={styles.container} onLayout={onLayout}>
+    <KeyboardAvoidingView style={[styles.container, {backgroundColor: colors.background2}]} onLayout={onLayout}>
       <StatusBar
         barStyle={dark ? "light-content" : "dark-content"}
-        backgroundColor={colors.background}
+        backgroundColor={colors.background2}
         translucent
       />
       <Separator height={StatusBar.currentHeight} />
@@ -157,20 +78,20 @@ const Validationcode = ({ navigation }: ValidationCodeProps, {route}: Validation
           name="chevron-back-outline"
           size={30}
           onPress={() => navigation.goBack()}
-          color={colors.text}
+          color={colors.tint}
           
         />
-        <Text style={styles.headerTitle}>OTP Verification</Text>
+        <Text style={[styles.headerTitle, {color: colors.tint}]}>Codigo de Verificación</Text>
       </View>
-      <Text style={styles.title}>OTP Verification</Text>
-      <Text style={styles.content}>
-        Enter the OTP number just sent you at{" "}
-        <Text style={styles.phoneNumberText}>{route2.params.email}</Text>
+      <Text style={[styles.title, {color: colors.text}]}>Codigo de Verificación</Text>
+      <Text style={[styles.content, {color: colors.text}]}>
+        Ingresa el codigo de verificación que hemos mandado a {" "}
+        <Text style={[styles.phoneNumberText, {color: colors.tint}]}>{route2.params.email}</Text>
       </Text>
       <View style={styles.otpContainer}>
-        <View style={styles.otpBox}>
+        <View style={[styles.otpBox, {borderColor: colors.tint}]}>
           <TextInput
-            style={styles.otpText}
+            style={[styles.otpText, {color: colors.text} ]}
             keyboardType="number-pad"
             maxLength={1}
             ref={firstInput}
@@ -180,9 +101,9 @@ const Validationcode = ({ navigation }: ValidationCodeProps, {route}: Validation
             }}
           />
         </View>
-        <View style={styles.otpBox}>
+        <View style={[styles.otpBox, {borderColor: colors.tint}]}>
           <TextInput
-            style={styles.otpText}
+            style={[styles.otpText, {color: colors.text} ]}
             keyboardType="number-pad"
             maxLength={1}
             ref={secondInput}
@@ -192,9 +113,9 @@ const Validationcode = ({ navigation }: ValidationCodeProps, {route}: Validation
             }}
           />
         </View>
-        <View style={styles.otpBox}>
+        <View style={[styles.otpBox, {borderColor: colors.tint}]}>
           <TextInput
-            style={styles.otpText}
+            style={[styles.otpText, {color: colors.text} ]}
             keyboardType="number-pad"
             maxLength={1}
             ref={thirdInput}
@@ -206,9 +127,9 @@ const Validationcode = ({ navigation }: ValidationCodeProps, {route}: Validation
             }}
           />
         </View>
-        <View style={styles.otpBox}>
+        <View style={[styles.otpBox, {borderColor: colors.tint}]}>
           <TextInput
-            style={styles.otpText}
+            style={[styles.otpText, {color: colors.text} ]}
             keyboardType="number-pad"
             maxLength={1}
             ref={fourthInput}
@@ -220,8 +141,8 @@ const Validationcode = ({ navigation }: ValidationCodeProps, {route}: Validation
         </View>
       </View>
       <TouchableOpacity
-        style={styles.signinButton}
-        onPress={() => console.log(otp)}
+        style={[styles.signinButton, {backgroundColor: colors.tint}]}
+        onPress={() => navigation.navigate("Changepassword")}
       >
         <Text style={styles.signinButtonText}>Verify</Text>
       </TouchableOpacity>
@@ -230,7 +151,84 @@ const Validationcode = ({ navigation }: ValidationCodeProps, {route}: Validation
   
 };
 
-
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    //backgroundColor: colors.background,
+  },
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontFamily: "Poppins_Medium",
+    lineHeight: 20 * 1.4,
+    width: "80%",
+    textAlign: "center",
+    //color: colors.text,
+  },
+  title: {
+    fontSize: 20,
+    fontFamily: "Poppins_Medium",
+    lineHeight: 20 * 1.4,
+    marginTop: 50,
+    marginBottom: 10,
+    marginHorizontal: 20,
+    //color: colors.text,
+  },
+  content: {
+    fontSize: 18,
+    fontFamily: "Poppins_Medium",
+    marginTop: 10,
+    marginBottom: 20,
+    marginHorizontal: 20,
+    //color: colors.text,
+  },
+  phoneNumberText: {
+    fontSize: 18,
+    fontFamily: "Poppins_Regular",
+    lineHeight: 18 * 1.4,
+    //color: colors.tint,
+  },
+  otpContainer: {
+    marginHorizontal: 20,
+    marginBottom: 20,
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  otpBox: {
+    borderRadius: 5,
+    //borderColor: colors.tint,
+    borderWidth: 0.5,
+  },
+  otpText: {
+    fontSize: 25,
+    //color: colors.text,
+    padding: 0,
+    textAlign: "center",
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+  },
+  signinButton: {
+    //backgroundColor: colors.tint,
+    borderRadius: 8,
+    marginHorizontal: 20,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+  },
+  signinButtonText: {
+    fontSize: 18,
+    lineHeight: 18 * 1.4,
+    color: "white",
+    fontFamily: "Poppins_Medium",
+  },
+});
 
 
 export default Validationcode;
