@@ -316,10 +316,11 @@ const ChangePasswordScreen = (
             <Text style={styles.errorMessage}>{errors.passwordConfirm}</Text>
           )}
           <TouchableOpacity
-            style={[styles.signinButton, { backgroundColor: colors.tint }]}
+            style={[styles.signinButton, { backgroundColor: (isValid && dirty) ? colors.tint : colors.tintBlock }]}
           >
             <Text
               style={styles.signinButtonText}
+              disabled={!(isValid && dirty)}
               onPress={(e) => {
                 changepwd({
                   variables: {

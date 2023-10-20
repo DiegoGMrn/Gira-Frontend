@@ -337,24 +337,15 @@ const SignupScreen = ({ navigation }: SignupScreenProps) => {
 
   const register_m = gql`
     mutation createUsers($userInput: CreateUserInput!) {
-      createUsers(userInput: $userInput) {
-        name
-        clave
-        correo
-      }
+      createUsers(userInput: $userInput)
     }
   `;
 
   const [signup] = useMutation(register_m, {
-    variables: {
-      userInput: {
-        name: name,
-        clave: password,
-        correo: email,
-      },
-    },
-    onCompleted: ({ data }) => {
+    onCompleted: ( data ) => {
+      console.log(data);
       const response = data.createUsers;
+      console.log(response);
       if (response == true) {
         showToastSuccess();
         navigation.goBack();
@@ -540,7 +531,7 @@ const SignupScreen = ({ navigation }: SignupScreenProps) => {
           <TouchableOpacity
             style={[styles.signinButton, { backgroundColor: (isValid && dirty) ? colors.tint : colors.tintBlock}, ]}
             onPress={(e) => {
-              signup();
+              signup( {variables: { userInput: { name: values.name, clave: values.password, correo: values.email } } });
             }}
             disabled={!(isValid && dirty)}
           >

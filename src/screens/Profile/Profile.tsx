@@ -20,7 +20,7 @@ interface ProfileScreenProps {
 const ProfileScreen = ({ navigation }: ProfileScreenProps) => {
   const { dark, colors, setScheme } = useTheme();
   const [isEditModalVisible, setEditModalVisible] = useState(false);
-  
+  const [newName, setNewName] = useState("");
   const { login, logout, isLoading, userToken } = useContext(AuthContext);
 
   const get_profile_m = gql`
@@ -49,6 +49,7 @@ const ProfileScreen = ({ navigation }: ProfileScreenProps) => {
   }
 
   const openEditModal = () => {
+    setNewName(info.nombre);
     setEditModalVisible(true);
   };
 
@@ -68,7 +69,7 @@ const ProfileScreen = ({ navigation }: ProfileScreenProps) => {
   console.log("json 2", jsonObject2);
   const info = JSON.parse(jsonObject2.showInfo);
   console.log("teams", info);
-  const [newName, setNewName] = useState(info.nombre);
+  
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background2 }]}>

@@ -191,57 +191,61 @@ function TeamScreen({ navigation }: TeamScreenProps) {
       </Modal>
       {/* Contenido */}
       <View style={styles.content}>
-        {teams.map((team) => (
-          <TouchableOpacity
-            key={team.id}
-            style={[styles.teamCard, { backgroundColor: colors.background }]}
-            onPress={() => {
-              navigation.navigate("TeamDetail", {
-                teamId: team.id,
-                teamName: team.nombre,
-              });
-            }}
-          >
-            <View style={styles.teamInfo}>
-              <Text style={[styles.teamName, { color: colors.tint }]}>
-                {team.nombre}
-              </Text>
-              <View style={styles.teamIcons}>
-                <Ionicons
-                  name="person-circle"
-                  size={30}
-                  color={colors.text}
-                  style={{ marginLeft: 0 }}
-                />
-                <Ionicons
-                  name="person-circle-sharp"
-                  size={30}
-                  color={colors.text}
-                  style={{ marginLeft: -12 }}
-                />
-                <Ionicons
-                  name="person-circle"
-                  size={30}
-                  color={colors.text}
-                  style={{ marginLeft: -12 }}
-                />
-                <Ionicons
-                  name="add-circle"
-                  size={30}
-                  color={colors.text}
-                  style={{ marginLeft: -12 }}
-                />
+        {teams ? ( // Comprueba si 'teams' existe
+          teams.map((team) => (
+            <TouchableOpacity
+              key={team.id}
+              style={[styles.teamCard, { backgroundColor: colors.background }]}
+              onPress={() => {
+                navigation.navigate("TeamDetail", {
+                  teamId: team.id,
+                  teamName: team.nombre,
+                });
+              }}
+            >
+              <View style={styles.teamInfo}>
+                <Text style={[styles.teamName, { color: colors.tint }]}>
+                  {team.nombre}
+                </Text>
+                <View style={styles.teamIcons}>
+                  <Ionicons
+                    name="person-circle"
+                    size={30}
+                    color={colors.text}
+                    style={{ marginLeft: 0 }}
+                  />
+                  <Ionicons
+                    name="person-circle-sharp"
+                    size={30}
+                    color={colors.text}
+                    style={{ marginLeft: -12 }}
+                  />
+                  <Ionicons
+                    name="person-circle"
+                    size={30}
+                    color={colors.text}
+                    style={{ marginLeft: -12 }}
+                  />
+                  <Ionicons
+                    name="add-circle"
+                    size={30}
+                    color={colors.text}
+                    style={{ marginLeft: -12 }}
+                  />
+                </View>
               </View>
-            </View>
-            <TouchableOpacity>
-              <Ionicons
-                name="ios-arrow-forward"
-                size={30}
-                color={colors.tint}
-              />
+              <TouchableOpacity>
+                <Ionicons
+                  name="ios-arrow-forward"
+                  size={30}
+                  color={colors.tint}
+                />
+              </TouchableOpacity>
             </TouchableOpacity>
-          </TouchableOpacity>
-        ))}
+          ))
+        ) : (
+          <Text style={{color: colors.text, alignItems: "center", textAlign: "center"}}>No tienes equipos</Text> // Muestra un mensaje si 'teams' no existe
+        )}
       </View>
 
       {/* Team Cards */}
