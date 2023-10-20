@@ -282,7 +282,7 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { FormikHelpers } from "formik/dist/types";
 import { gql, useMutation } from "@apollo/client";
-
+import Toast  from "react-native-toast-message";
 interface SignupScreenProps {
   navigation: NavigationProp<any>; // Puedes ajustar el tipo según tu configuración
 }
@@ -313,11 +313,28 @@ const SignupScreen = ({ navigation }: SignupScreenProps) => {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [usernameErrorMessage, setUsernameErrorMessage] = useState("");
+  /*const [usernameErrorMessage, setUsernameErrorMessage] = useState("");
   const [emailErrorMessage, setEmailErrorMessage] = useState("");
   const [emailState, setEmailState] = useState("default");
-  const [usernameState, setUsernameState] = useState("default");
+  const [usernameState, setUsernameState] = useState("default");*/
   const { dark, colors, setScheme } = useTheme();
+
+  const showToastSuccess = () => {
+    Toast.show({
+      type: "success",
+      text1: "Usuario registrado.",
+      text2: "Se ha registrado exitosamente.",
+    });
+  }
+
+  const showToastError = () => {
+    Toast.show({
+      type: "error",
+      text1: "Usuario no registrado.",
+      text2: "El correo ya está registrado.",
+    });
+  }
+
   const register_m = gql`
     mutation createUsers($userInput: CreateUserInput!) {
       createUsers(userInput: $userInput) {
@@ -336,8 +353,17 @@ const SignupScreen = ({ navigation }: SignupScreenProps) => {
         correo: email,
       },
     },
-    onCompleted: ({ signup }) => {
-      navigation.goBack();
+    onCompleted: ({ data }) => {
+      const response = data.createUsers;
+      if (response == true) {
+        showToastSuccess();
+        navigation.goBack();
+      }
+      else {
+        showToastError();
+        setErrorMessage("El correo ya está registrado.");
+      }
+      
     },
   });
 
@@ -366,6 +392,7 @@ const SignupScreen = ({ navigation }: SignupScreenProps) => {
         setFieldTouched,
         isValid,
         handleSubmit,
+        dirty,
       }) => (
         <KeyboardAvoidingView
           style={[styles.container, { backgroundColor: colors.background2 }]}
@@ -511,11 +538,11 @@ const SignupScreen = ({ navigation }: SignupScreenProps) => {
             <Text style={styles.errorMessage}>{errors.passwordConfirm}</Text>
           )}
           <TouchableOpacity
-            style={[styles.signinButton, { backgroundColor: isValid ? colors.tint : colors.tintBlock}, ]}
+            style={[styles.signinButton, { backgroundColor: (isValid && dirty) ? colors.tint : colors.tintBlock}, ]}
             onPress={(e) => {
               signup();
             }}
-            disabled={!isValid}
+            disabled={!(isValid && dirty)}
           >
             {isLoading ? (
               <LottieView

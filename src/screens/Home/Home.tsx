@@ -9,11 +9,11 @@ import {
   Platform,
   StyleSheet,
   Switch,
+  StatusBar,
 } from "react-native";
 import { useTheme } from "../../components/ThemeProvider";
 import { NavigationProp } from "@react-navigation/native";
 import styless from "../Styles";
-import { StatusBar } from "expo-status-bar";
 import Animated, {
   FadeIn,
   FadeInDown,
@@ -21,6 +21,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { AuthContext } from "../../context/AuthContext";
 import { useMutation, gql } from "@apollo/client";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 interface HomeProps {
   navigation: NavigationProp<any>; // Puedes ajustar el tipo según tu configuración
@@ -42,8 +43,7 @@ function Home({ navigation }: HomeProps) {
   const login_m = gql`
     mutation resetPassword($resetPasswordInput: UpdatePasswordInput!) {
       resetPassword(resetPasswordInput: $resetPasswordInput)
-      }
-
+    }
   `;
   const [changePassword] = useMutation(login_m, {
     variables: {
@@ -65,68 +65,31 @@ function Home({ navigation }: HomeProps) {
   });
 
   return (
-    <View style={styless().container}>
+    <View style={{ flex: 1, backgroundColor: colors.background2 }}>
+      <StatusBar
+        barStyle={dark ? "light-content" : "dark-content"}
+        backgroundColor={colors.background}
+        translucent
+      />
+      {/* Header */}
       <View
         style={{
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          padding: 13,
+          paddingHorizontal: 16,
+          marginTop: 14,
+          marginBottom: 16,
+          backgroundColor: colors.background,
         }}
       >
-        <Switch value={dark} onValueChange={toggleTheme} />
-        <Text style={[styles.highlight, { color: colors.text }]}>App.tsx</Text>
-      </View>
-      {/**/}
-      <View style={styless().titleFormContainer}>
-        <View style={styless().formContainer}>
-          <View style={styless().inputContainer}>
-            <TextInput
-              style={styless().input}
-              placeholder="Correo"
-              placeholderTextColor={"gray"}
-              value={email}
-              onChangeText={(text) => onChangeEmail(text)}
-            />
-          </View>
-          <View style={styless().inputContainer}>
-            <TextInput
-              style={styless().input}
-              placeholder="Contraseña"
-              placeholderTextColor="gray"
-              secureTextEntry
-              value={password}
-              onChangeText={(text) => onChangePassword(text)}
-            />
-          </View>
-          <View style={[styless().inputContainer, {marginBottom: 10,}]}>
-            <TextInput
-              style={styless().input}
-              placeholder="Nueva contraseña"
-              placeholderTextColor="gray"
-              secureTextEntry
-              value={newpassword}
-              onChangeText={(text) => onChangeNewPassword(text)}
-            />
-          </View>
-          <View style={styless().signUpContainer}>
-            <View style={styless().buttonContainer}>
-              <TouchableOpacity onPress={(e) => {changePassword()}} style={styless().button}>
-                <Text style={styless().buttonText}>Cambiar contraseña</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={styless().signUpContainer}>
-            <View style={styless().buttonContainer}>
-              <TouchableOpacity
-                onPress={() => {
-                  logouthandle();
-                }}
-                style={styless().button}
-              >
-                <Text style={styless().buttonText}>Cerrar Sesión</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+        <Text style={{ fontSize: 24, fontWeight: "bold", color: colors.text }}>
+          Inicio
+        </Text>
+        <View style={{ flexDirection: "row" }}>
+          <TouchableOpacity style={{ paddingLeft: 12 }}>
+            <Ionicons name="search" size={30} color={colors.text} />
+          </TouchableOpacity>
         </View>
       </View>
     </View>

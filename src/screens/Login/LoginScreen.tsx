@@ -166,7 +166,7 @@ import { NavigationProp } from "@react-navigation/native";
 import { useTheme } from "../../components/ThemeProvider";
 import { AuthContext } from "../../context/AuthContext";
 import { useMutation, gql } from "@apollo/client";
-
+import Toast from "react-native-toast-message";
 interface SigninProps {
   navigation: NavigationProp<any>; // Puedes ajustar el tipo según tu configuración
 }
@@ -180,6 +180,7 @@ const SigninScreen = ({ navigation }: SigninProps) => {
   const { dark, colors, setScheme } = useTheme();
   const { login, isLoading, userToken } = useContext(AuthContext);
   const [loginError, setLoginError] = useState("");
+
   const login_m = gql`
     mutation loginUsersTest($loginInput: LoginUserInput!) {
       loginUsersTest(loginInput: $loginInput)
@@ -246,7 +247,7 @@ const SigninScreen = ({ navigation }: SigninProps) => {
             placeholderTextColor={"grey"}
             selectionColor={"grey"}
             style={[styles.inputText, { color: colors.text }]}
-            onChangeText={(text) => setUsername(text)}
+            onChangeText={(text) => onChangeEmail(text)}
           />
         </View>
       </View>
@@ -293,6 +294,7 @@ const SigninScreen = ({ navigation }: SigninProps) => {
           login2();
         }}
         activeOpacity={0.8}
+        
       >
         {isLoading2 ? (
           <LottieView source={require("../../assets/loading.json")} autoPlay />

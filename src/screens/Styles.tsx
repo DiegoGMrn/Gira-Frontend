@@ -6,7 +6,7 @@ const styles = () => {
   const { dark, colors, setScheme } = useTheme();
   return StyleSheet.create({
     container: {
-        backgroundColor: colors.background,
+        backgroundColor: colors.background2,
         flex: 1,
       },
       statusBar: {
@@ -22,6 +22,7 @@ const styles = () => {
         justifyContent: "space-around",
         paddingTop: "auto",
         paddingBottom: 40,
+        elevation: 1,
       },
       titleContainer: {
         alignItems: "center",
@@ -44,6 +45,7 @@ const styles = () => {
         borderRadius: 16,
         width: "100%",
         marginTop: 10,
+        
       },
       input: {
         color: colors.text,

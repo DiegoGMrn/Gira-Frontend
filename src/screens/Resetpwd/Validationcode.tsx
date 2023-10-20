@@ -6,7 +6,7 @@ import {
   StatusBar,
   TextInput,
   TouchableOpacity,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
 } from "react-native";
 import {
   useFonts,
@@ -20,10 +20,13 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { useTheme } from "../../components/ThemeProvider";
 //import styles from "./ValidationStyles";
 import { NavigationProp, useRoute } from "@react-navigation/native";
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useContext } from "react";
 import { FontSource } from "expo-font";
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
+import { gql, useMutation } from "@apollo/client";
+import { AuthContext } from "../../context/AuthContext";
+
 interface ValidationCodeProps {
   navigation: NavigationProp<any>;
 }
@@ -36,7 +39,10 @@ interface ValidationCodeRouteProps {
   };
 }
 
-const Validationcode = ({ navigation }: ValidationCodeProps, {route}: ValidationCodeRouteProps) => {
+const Validationcode = (
+  { navigation }: ValidationCodeProps,
+  { route }: ValidationCodeRouteProps
+) => {
   const firstInput = useRef<TextInput>(null);
   const secondInput = useRef<TextInput>(null);
   const thirdInput = useRef<TextInput>(null);
@@ -44,29 +50,33 @@ const Validationcode = ({ navigation }: ValidationCodeProps, {route}: Validation
   const [otp, setOtp] = useState({ 1: "", 2: "", 3: "", 4: "" });
   const { dark, colors, setScheme } = useTheme();
   const route2 = useRoute();
-
-  const [fontsLoaded] = useFonts({
-    Poppins_Regular: require("../../assets/fonts/Poppins-Regular.ttf"),
-    Poppins_Back: require("../../assets/fonts/Poppins-Black.ttf"),
-    Poppins_Medium: require("../../assets/fonts/Poppins-Medium.ttf"),
+  const { login, isLoading, userToken } = useContext(AuthContext);
+  const [codeError, setCodeError] = useState("");
+ 
+  const obtenerOtpString = () => {
+    return Object.values(otp).join("");
+  };
+  const confirmC_m = gql`
+    mutation confirmC($confirmCodeInput: ConfirmCodeInput!) {
+      confirmC(confirmCodeInput: $confirmCodeInput) 
+    }
+  `;
+  const [confirmCode] = useMutation(confirmC_m, {
+    onCompleted: (data) => {
+      const confirm = data.confirmC;
+      console.log(data);
+      if (confirm == true) {
+        navigation.navigate("Changepassword", { email: route2.params.email });
+      } else {
+        setCodeError("Codigo incorrecto.");
+      }
+    },
   });
-  useEffect(() => {
-    async function prepare() {
-      await SplashScreen.preventAutoHideAsync();
-    }
-    prepare();
-  }, []);
 
-  const onLayout = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-
-
-  if (!fontsLoaded) return null;
   return (
-    <KeyboardAvoidingView style={[styles.container, {backgroundColor: colors.background2}]} onLayout={onLayout}>
+    <KeyboardAvoidingView
+      style={[styles.container, { backgroundColor: colors.background2 }]}
+    >
       <StatusBar
         barStyle={dark ? "light-content" : "dark-content"}
         backgroundColor={colors.background2}
@@ -79,19 +89,24 @@ const Validationcode = ({ navigation }: ValidationCodeProps, {route}: Validation
           size={30}
           onPress={() => navigation.goBack()}
           color={colors.tint}
-          
         />
-        <Text style={[styles.headerTitle, {color: colors.tint}]}>Codigo de Verificación</Text>
+        <Text style={[styles.headerTitle, { color: colors.tint }]}>
+          Codigo de Verificación
+        </Text>
       </View>
-      <Text style={[styles.title, {color: colors.text}]}>Codigo de Verificación</Text>
-      <Text style={[styles.content, {color: colors.text}]}>
-        Ingresa el codigo de verificación que hemos mandado a {" "}
-        <Text style={[styles.phoneNumberText, {color: colors.tint}]}>{route2.params.email}</Text>
+      <Text style={[styles.title, { color: colors.text }]}>
+        Codigo de Verificación
+      </Text>
+      <Text style={[styles.content, { color: colors.text }]}>
+        Ingresa el codigo de verificación que hemos mandado a{" "}
+        <Text style={[styles.phoneNumberText, { color: colors.tint }]}>
+          {route2.params.email}
+        </Text>
       </Text>
       <View style={styles.otpContainer}>
-        <View style={[styles.otpBox, {borderColor: colors.tint}]}>
+        <View style={[styles.otpBox, { borderColor: colors.tint }]}>
           <TextInput
-            style={[styles.otpText, {color: colors.text} ]}
+            style={[styles.otpText, { color: colors.text }]}
             keyboardType="number-pad"
             maxLength={1}
             ref={firstInput}
@@ -101,9 +116,9 @@ const Validationcode = ({ navigation }: ValidationCodeProps, {route}: Validation
             }}
           />
         </View>
-        <View style={[styles.otpBox, {borderColor: colors.tint}]}>
+        <View style={[styles.otpBox, { borderColor: colors.tint }]}>
           <TextInput
-            style={[styles.otpText, {color: colors.text} ]}
+            style={[styles.otpText, { color: colors.text }]}
             keyboardType="number-pad"
             maxLength={1}
             ref={secondInput}
@@ -113,9 +128,9 @@ const Validationcode = ({ navigation }: ValidationCodeProps, {route}: Validation
             }}
           />
         </View>
-        <View style={[styles.otpBox, {borderColor: colors.tint}]}>
+        <View style={[styles.otpBox, { borderColor: colors.tint }]}>
           <TextInput
-            style={[styles.otpText, {color: colors.text} ]}
+            style={[styles.otpText, { color: colors.text }]}
             keyboardType="number-pad"
             maxLength={1}
             ref={thirdInput}
@@ -127,9 +142,9 @@ const Validationcode = ({ navigation }: ValidationCodeProps, {route}: Validation
             }}
           />
         </View>
-        <View style={[styles.otpBox, {borderColor: colors.tint}]}>
+        <View style={[styles.otpBox, { borderColor: colors.tint }]}>
           <TextInput
-            style={[styles.otpText, {color: colors.text} ]}
+            style={[styles.otpText, { color: colors.text }]}
             keyboardType="number-pad"
             maxLength={1}
             ref={fourthInput}
@@ -141,14 +156,13 @@ const Validationcode = ({ navigation }: ValidationCodeProps, {route}: Validation
         </View>
       </View>
       <TouchableOpacity
-        style={[styles.signinButton, {backgroundColor: colors.tint}]}
-        onPress={() => navigation.navigate("Changepassword")}
+        style={[styles.signinButton, { backgroundColor: colors.tint }]}
+        onPress={(e) => {confirmCode({variables: {confirmCodeInput: {correo: route2.params.email, code: obtenerOtpString()}}})}}
       >
         <Text style={styles.signinButtonText}>Verify</Text>
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );
-  
 };
 
 const styles = StyleSheet.create({
@@ -229,6 +243,5 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_Medium",
   },
 });
-
 
 export default Validationcode;

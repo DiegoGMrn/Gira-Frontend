@@ -120,114 +120,223 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
 import { useTheme } from "../../components/ThemeProvider";
 import Display from "../../utils/Display";
-import { NavigationProp } from "@react-navigation/native";
+import { NavigationProp, useRoute } from "@react-navigation/native";
+import { useMutation, gql } from "@apollo/client";
+import { Formik } from "formik";
+import * as Yup from "yup";
+import Toast from "react-native-toast-message";
 
 interface ChangePasswordScreenProps {
   navigation: NavigationProp<any>;
 }
 
-const ChangePasswordScreen = ({ navigation }: ChangePasswordScreenProps) => {
+interface ChangepwdRouteProps {
+  route: {
+    params: {
+      email: string;
+    };
+  };
+}
+
+const SignupSchema = Yup.object().shape({
+  password: Yup.string()
+    .min(8, "La contraseña debe tener al menos 8 caracteres.")
+    .required("Por favor ingrese su contraseña.")
+    .matches(
+      /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
+      "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un caracter especial."
+    ),
+  passwordConfirm: Yup.string()
+    .min(8)
+    .oneOf([Yup.ref("password"), ""], "Las contraseñas deben coincidir.")
+    .required("Por favor confirme su contraseña."),
+});
+
+const ChangePasswordScreen = (
+  { navigation }: ChangePasswordScreenProps,
+  { route }: ChangepwdRouteProps
+) => {
   const [isPasswordShow, setIsPasswordShow] = useState(false);
   const { dark, colors, setScheme } = useTheme();
   const [email, onChangeEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, onChangeConfirmPassword] = useState("");
+  const route2 = useRoute();
+
+  const showToastSuccess = () => {
+    Toast.show({
+      type: "success",
+      text1: "Contraseña cambiada",
+      text2: "Su contraseña ha sido cambiada exitosamente.",
+    });
+  }
+
+  const showToastError = () => {
+    Toast.show({
+      type: "error",
+      text1: "Error",
+      text2: "Ha ocurrido un error, por favor intente de nuevo.",
+    });
+  }
+
+  const changepwd_m = gql`
+    mutation resetPassword2($resetPasswordInput: UpdatePasswordInput2!) {
+      resetPassword2(resetPasswordInput: $resetPasswordInput)
+    }
+  `;
+
+  const [changepwd] = useMutation(changepwd_m, {
+    onCompleted: (data) => {
+      const confirm = data.resetPassword2;
+      console.log(confirm);
+      if (confirm == true) {
+        showToastSuccess();
+        navigation.navigate("Login");
+      } else {
+        showToastError();
+        navigation.navigate("Login");
+      }
+    },
+  });
+
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: colors.background2 }]}
+    <Formik
+      initialValues={{
+        name: "",
+        email: "",
+        password: "",
+        passwordConfirm: "",
+      }}
+      validationSchema={SignupSchema}
+      onSubmit={(values) => {
+        // same shape as initial values
+        console.log(values);
+      }}
     >
-      <StatusBar
-        barStyle={dark ? "light-content" : "dark-content"}
-        backgroundColor={colors.background2}
-        translucent
-      />
-      <Separator height={StatusBar.currentHeight} />
-      <View style={styles.headerContainer}>
-        <Ionicons
-          name="chevron-back-outline"
-          size={30}
-          color={colors.tint}
-          onPress={() => navigation.goBack()}
-        />
-        <Text style={[styles.headerTitle, { color: colors.tint }]}>
-          Cambiar Contraseña
-        </Text>
-      </View>
-      <Text style={[styles.title, { color: colors.text }]}>
-        Cambiar Contraseña
-      </Text>
-      <Text style={[styles.content, { color: colors.text }]}>
-        Ingresa tu nueva contraseña.
-      </Text>
-      <View
-        style={[styles.inputContainer, { backgroundColor: colors.bgInput }]}
-      >
-        <View style={styles.inputSubContainer}>
-          <Feather
-            name="lock"
-            size={22}
-            color={"grey"}
-            style={{ marginRight: 10 }}
-          />
-          <TextInput
-            secureTextEntry={isPasswordShow ? false : true}
-            placeholder="Contraseña"
-            placeholderTextColor={"grey"}
-            selectionColor={"grey"}
-            style={[styles.inputText, { color: colors.text }]}
-            onChangeText={(text) => setPassword(text)}
-          />
-          <Feather
-            name={isPasswordShow ? "eye" : "eye-off"}
-            size={22}
-            color={"grey"}
-            style={{ marginRight: 10 }}
-            onPress={() => setIsPasswordShow(!isPasswordShow)}
-          />
-        </View>
-      </View>
-      {}
-      <Text style={styles.errorMessage}></Text>
-      <View
-        style={[styles.inputContainer, { backgroundColor: colors.bgInput }]}
-      >
-        <View style={styles.inputSubContainer}>
-          <Feather
-            name="lock"
-            size={22}
-            color={"grey"}
-            style={{ marginRight: 10 }}
-          />
-          <TextInput
-            secureTextEntry={isPasswordShow ? false : true}
-            placeholder="Confirmar contraseña"
-            placeholderTextColor={"grey"}
-            selectionColor={"grey"}
-            style={[styles.inputText, { color: colors.text }]}
-            onChangeText={(text) => onChangeConfirmPassword(text)}
-          />
-          <Feather
-            name={isPasswordShow ? "eye" : "eye-off"}
-            size={22}
-            color={"grey"}
-            style={{ marginRight: 10 }}
-            onPress={() => setIsPasswordShow(!isPasswordShow)}
-          />
-        </View>
-      </View>
-      <TouchableOpacity
-        style={[styles.signinButton, { backgroundColor: colors.tint }]}
-      >
-        <Text
-          style={styles.signinButtonText}
-          onPress={() => {
-            navigation.navigate("Validationcode", { email: email });
-          }}
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        setFieldTouched,
+        isValid,
+        handleSubmit,
+        dirty,
+      }) => (
+        <KeyboardAvoidingView
+          style={[styles.container, { backgroundColor: colors.background2 }]}
         >
-          Cambiar Contraseña
-        </Text>
-      </TouchableOpacity>
-    </KeyboardAvoidingView>
+          <StatusBar
+            barStyle={dark ? "light-content" : "dark-content"}
+            backgroundColor={colors.background2}
+            translucent
+          />
+          <Separator height={StatusBar.currentHeight} />
+          <View style={styles.headerContainer}>
+            <Ionicons
+              name="chevron-back-outline"
+              size={30}
+              color={colors.tint}
+              onPress={() => navigation.goBack()}
+            />
+            <Text style={[styles.headerTitle, { color: colors.tint }]}>
+              Cambiar Contraseña
+            </Text>
+          </View>
+          <Text style={[styles.title, { color: colors.text }]}>
+            Cambiar Contraseña
+          </Text>
+          <Text style={[styles.content, { color: colors.text }]}>
+            Ingresa tu nueva contraseña.
+          </Text>
+          <View
+            style={[styles.inputContainer, { backgroundColor: colors.bgInput }]}
+          >
+            <View style={styles.inputSubContainer}>
+              <Feather
+                name="lock"
+                size={22}
+                color={"grey"}
+                style={{ marginRight: 10 }}
+              />
+              <TextInput
+                secureTextEntry={isPasswordShow ? false : true}
+                placeholder="Contraseña"
+                placeholderTextColor={"grey"}
+                selectionColor={"grey"}
+                value={values.password}
+                autoCapitalize="none"
+                style={[styles.inputText, { color: colors.text }]}
+                onChangeText={handleChange("password")}
+                onBlur={() => setFieldTouched("password")}
+              />
+              <Feather
+                name={isPasswordShow ? "eye" : "eye-off"}
+                size={22}
+                color={"grey"}
+                style={{ marginRight: 10 }}
+                onPress={() => setIsPasswordShow(!isPasswordShow)}
+              />
+            </View>
+          </View>
+          {touched.password && errors.password && (
+            <Text style={styles.errorMessage}>{errors.password}</Text>
+          )}
+          <View
+            style={[styles.inputContainer, { backgroundColor: colors.bgInput }]}
+          >
+            <View style={styles.inputSubContainer}>
+              <Feather
+                name="lock"
+                size={22}
+                color={"grey"}
+                style={{ marginRight: 10 }}
+              />
+              <TextInput
+                secureTextEntry={isPasswordShow ? false : true}
+                placeholder="Confirmar contraseña"
+                placeholderTextColor={"grey"}
+                selectionColor={"grey"}
+                value={values.passwordConfirm}
+                autoCapitalize="none"
+                style={[styles.inputText, { color: colors.text }]}
+                onChangeText={handleChange("passwordConfirm")}
+                onBlur={() => setFieldTouched("passwordConfirm")}
+              />
+              <Feather
+                name={isPasswordShow ? "eye" : "eye-off"}
+                size={22}
+                color={"grey"}
+                style={{ marginRight: 10 }}
+                onPress={() => setIsPasswordShow(!isPasswordShow)}
+              />
+            </View>
+          </View>
+          {touched.passwordConfirm && errors.passwordConfirm && (
+            <Text style={styles.errorMessage}>{errors.passwordConfirm}</Text>
+          )}
+          <TouchableOpacity
+            style={[styles.signinButton, { backgroundColor: colors.tint }]}
+          >
+            <Text
+              style={styles.signinButtonText}
+              onPress={(e) => {
+                changepwd({
+                  variables: {
+                    resetPasswordInput: {
+                      correo: route2.params.email,
+                      claveNueva: values.password,
+                    },
+                  },
+                });
+              }}
+            >
+              Cambiar Contraseña
+            </Text>
+          </TouchableOpacity>
+        </KeyboardAvoidingView>
+      )}
+    </Formik>
   );
 };
 
@@ -268,6 +377,7 @@ const styles = StyleSheet.create({
     backgroundColor: "grey",
     paddingHorizontal: 10,
     marginHorizontal: 20,
+    marginTop: 15,
     borderRadius: 8,
     justifyContent: "center",
   },
@@ -298,14 +408,32 @@ const styles = StyleSheet.create({
     color: "white",
     fontFamily: "Poppins_Medium",
   },
+  orText: {
+    fontSize: 15,
+    lineHeight: 15 * 1.4,
+    color: "black",
+    fontFamily: "Poppins_Medium",
+    marginLeft: 5,
+    alignSelf: "center",
+    marginTop: 20,
+  },
+  signinButtonLogoContainer: {
+    backgroundColor: "white",
+    padding: 2,
+    borderRadius: 3,
+    position: "absolute",
+    left: 25,
+  },
+  signinButtonLogo: {
+    height: 18,
+    width: 18,
+  },
   errorMessage: {
     fontSize: 10,
     lineHeight: 10 * 1.4,
     color: "red",
     fontFamily: "Poppins_Medium",
     marginHorizontal: 20,
-    marginTop: 3,
-    marginBottom: 10,
   },
 });
 
