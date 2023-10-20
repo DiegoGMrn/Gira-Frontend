@@ -24,7 +24,7 @@ import { useMutation, gql } from "@apollo/client";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 interface HomeProps {
-  navigation: NavigationProp<any>; // Puedes ajustar el tipo según tu configuración
+  navigation: NavigationProp<any>;
 }
 
 function Home({ navigation }: HomeProps) {
@@ -40,29 +40,6 @@ function Home({ navigation }: HomeProps) {
   function logouthandle() {
     logout();
   }
-  const login_m = gql`
-    mutation resetPassword($resetPasswordInput: UpdatePasswordInput!) {
-      resetPassword(resetPasswordInput: $resetPasswordInput)
-    }
-  `;
-  const [changePassword] = useMutation(login_m, {
-    variables: {
-      resetPasswordInput: {
-        claveAntigua: password,
-        claveNueva: newpassword,
-      },
-    },
-    onCompleted: (data) => {
-      const response = data.resetPassword;
-      console.log(response);
-      if (response != "") {
-        console.log("Se completo");
-      } else {
-        alert("No se pudo cambiar la contraseña");
-        //setLoginError("Correo o contraseña inválidos");
-      }
-    },
-  });
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background2 }}>
@@ -83,10 +60,12 @@ function Home({ navigation }: HomeProps) {
           backgroundColor: colors.background,
         }}
       >
-        <TouchableOpacity onPress={() => (logout())}>
-        <Text style={{ fontSize: 24, fontWeight: "bold", color: colors.text }}>
-          Inicio
-        </Text>
+        <TouchableOpacity onPress={() => logout()}>
+          <Text
+            style={{ fontSize: 24, fontWeight: "bold", color: colors.text }}
+          >
+            Inicio
+          </Text>
         </TouchableOpacity>
         <View style={{ flexDirection: "row" }}>
           <TouchableOpacity style={{ paddingLeft: 12 }}>

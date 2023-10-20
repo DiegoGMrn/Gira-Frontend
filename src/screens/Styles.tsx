@@ -10,7 +10,7 @@ const styles = () => {
         flex: 1,
       },
       statusBar: {
-        backgroundColor: "transparent", // Ajusta el color de la barra de estado según tus necesidades
+        backgroundColor: "transparent", 
       },
       background: {
         position: "absolute",
@@ -40,7 +40,7 @@ const styles = () => {
         
       },
       inputContainer: {
-        backgroundColor: colors.bgInput, // Ajusta el color de fondo según tus necesidades
+        backgroundColor: colors.bgInput, 
         padding: 10,
         borderRadius: 16,
         width: "100%",
@@ -55,7 +55,7 @@ const styles = () => {
         width: "100%",
       },
       button: {
-        backgroundColor: colors.tint, // Cambia esto al color deseado
+        backgroundColor: colors.tint, 
         padding: 12,
         borderRadius: 16,
         marginBottom: 10,
@@ -75,7 +75,7 @@ const styles = () => {
         fontSize: 13,
       },
       signUpLink: {
-        color: colors.tint, // Cambia esto al color deseado
+        color: colors.tint, 
         fontFamily: "Poppins_Regular",
         fontWeight: "bold",
 
@@ -91,7 +91,6 @@ const styles = () => {
         fontWeight: "bold",
       },
       errorText: {
-        //align to left
         color: "red",
         textAlign: "left",
         fontSize: 12,

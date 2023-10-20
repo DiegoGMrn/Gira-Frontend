@@ -10,7 +10,6 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { useTheme } from "../../components/ThemeProvider";
-import { Shadow } from "react-native-shadow-2";
 import Modal from "react-native-modal";
 import Toast from "react-native-toast-message";
 import { useFocusEffect } from "@react-navigation/native";
@@ -61,15 +60,15 @@ function TeamScreen({ navigation }: TeamScreenProps) {
   } = useQuery(get_teams_m);
 
   useEffect(() => {
-    // Realiza acciones adicionales después de que la consulta se haya ejecutado
+
     if (!loading && !error && data) {
-      // Aquí puedes trabajar con los datos recibidos
+     
     }
   }, [loading, error, data]);
 
   useFocusEffect(
     React.useCallback(() => {
-      // Esta función se ejecutará cada vez que la pantalla reciba el enfoque
+      
       refetchTeamData();
     }, [])
   );
@@ -104,9 +103,7 @@ function TeamScreen({ navigation }: TeamScreenProps) {
   };
 
   const saveNewName = () => {
-    // Realiza aquí la lógica para guardar el nuevo nombre
-    // Puedes hacer una solicitud a tu API o actualizar el estado del usuario
-    // Luego, cierra el modal
+
     closeCreateModal();
   };
 
@@ -260,61 +257,6 @@ function TeamScreen({ navigation }: TeamScreenProps) {
         )}
       </View>
 
-      {/* Team Cards */}
-      {/*<View style={{ flex: 1, paddingHorizontal: 16 }}>
-        {teams.map((team) => (
-          <View key={team.id} style={{ marginBottom: 16 }}>
-            <Shadow distance={3} style={{ alignSelf: "stretch" }}>
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate("TeamDetail", { teamId: team.id })
-                }
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  borderRadius: 16,
-                  backgroundColor: colors.background,
-                  padding: 16,
-                }}
-              >
-                <View
-                  style={{
-                    flex: 1,
-                  }}
-                >
-                  <Text
-                    style={{ flex: 1, color: colors.text, marginBottom: 8 }}
-                  >
-                    {team.name}
-                  </Text>
-                  {/* Icons 
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      paddingHorizontal: 16,
-                      marginTop: -8,
-                    }}
-                  >
-                    <Ionicons name="person" size={24} color={colors.text} />
-                    <Ionicons name="person" size={24} color={colors.text} />
-                    <Ionicons name="person" size={24} color={colors.text} />
-                    <Ionicons name="add-circle" size={24} color={colors.text} />
-                  </View>
-                </View>
-
-                <View>
-                  <Ionicons
-                    name="arrow-forward"
-                    size={24}
-                    color={colors.text}
-                  />
-                </View>
-              </TouchableOpacity>
-            </Shadow>
-          </View>
-        ))}
-      </View>*/}
     </View>
   );
 }

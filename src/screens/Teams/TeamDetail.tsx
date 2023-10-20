@@ -10,11 +10,9 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { gql, useMutation } from "@apollo/client";
 import { useTheme } from "../../components/ThemeProvider";
-import { Shadow } from "react-native-shadow-2";
 import { NavigationProp, useRoute } from "@react-navigation/native";
 import Modal from "react-native-modal";
 import Toast from "react-native-toast-message";
-import { useFocusEffect } from "@react-navigation/native";
 
 
 interface TeamDetailScreenProps {
@@ -129,7 +127,7 @@ function TeamDetailScreen(
   });
 
   useEffect(() => {
-    // Este efecto se ejecutará cada vez que cambien los parámetros de la ruta.
+   
     setNewName(route2.params.teamName);
     setNewName2(route2.params.teamName);
   }, [route2.params.teamName]);
@@ -203,9 +201,7 @@ function TeamDetailScreen(
   };
 
   const saveNewName = () => {
-    // Realiza aquí la lógica para guardar el nuevo nombre
-    // Puedes hacer una solicitud a tu API o actualizar el estado del usuario
-    // Luego, cierra el modal
+ 
     closeEditModal();
   };
 

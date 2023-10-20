@@ -1,32 +1,7 @@
 import { StyleSheet } from "react-native";
 import { useTheme } from "../../components/ThemeProvider";
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Poppins_400Regular,
-  Poppins_500Medium,
-  Poppins_700Bold,
-  Poppins_900Black,
-} from "@expo-google-fonts/poppins";
-import { useFonts } from "expo-font";
-import * as SplashScreen from "expo-splash-screen";
 const styles = () => {
   const { dark, colors, setScheme } = useTheme();
-  /*const [fontsLoaded] = useFonts({
-    Poppins_regular: require("../../assets/fonts/Poppins-Regular.ttf"),
-  });
-
-  useEffect(() => {
-    async function prepare() {
-      await SplashScreen.preventAutoHideAsync();
-    }
-    prepare();
-  }, []);
-
-  const onLayout = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);*/
 
   return StyleSheet.create({
     container: {

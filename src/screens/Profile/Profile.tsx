@@ -32,9 +32,9 @@ const ProfileScreen = ({ navigation }: ProfileScreenProps) => {
   const { loading, error, data } = useQuery(get_profile_m);
 
   useEffect(() => {
-    // Realiza acciones adicionales después de que la consulta se haya ejecutado
+    
     if (!loading && !error && data) {
-      // Aquí puedes trabajar con los datos recibidos
+     
     }
   }, [loading, error, data]);
   if (loading) {
@@ -58,9 +58,6 @@ const ProfileScreen = ({ navigation }: ProfileScreenProps) => {
   };
 
   const saveNewName = () => {
-    // Realiza aquí la lógica para guardar el nuevo nombre
-    // Puedes hacer una solicitud a tu API o actualizar el estado del usuario
-    // Luego, cierra el modal
     closeEditModal();
   };
 

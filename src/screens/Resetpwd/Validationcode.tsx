@@ -8,13 +8,6 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
 } from "react-native";
-import {
-  useFonts,
-  Poppins_400Regular,
-  Poppins_500Medium,
-  Poppins_700Bold,
-  Poppins_900Black,
-} from "@expo-google-fonts/poppins";
 import Separator from "../../components/Separator";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useTheme } from "../../components/ThemeProvider";
@@ -168,7 +161,7 @@ const Validationcode = (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    //backgroundColor: colors.background,
+   
   },
   headerContainer: {
     flexDirection: "row",
@@ -182,7 +175,7 @@ const styles = StyleSheet.create({
     lineHeight: 20 * 1.4,
     width: "80%",
     textAlign: "center",
-    //color: colors.text,
+
   },
   title: {
     fontSize: 20,
@@ -191,7 +184,7 @@ const styles = StyleSheet.create({
     marginTop: 50,
     marginBottom: 10,
     marginHorizontal: 20,
-    //color: colors.text,
+
   },
   content: {
     fontSize: 18,
@@ -199,13 +192,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 20,
     marginHorizontal: 20,
-    //color: colors.text,
+   
   },
   phoneNumberText: {
     fontSize: 18,
     fontFamily: "Poppins_Regular",
     lineHeight: 18 * 1.4,
-    //color: colors.tint,
+
   },
   otpContainer: {
     marginHorizontal: 20,
@@ -216,19 +209,18 @@ const styles = StyleSheet.create({
   },
   otpBox: {
     borderRadius: 5,
-    //borderColor: colors.tint,
+   
     borderWidth: 0.5,
   },
   otpText: {
     fontSize: 25,
-    //color: colors.text,
+
     padding: 0,
     textAlign: "center",
     paddingHorizontal: 18,
     paddingVertical: 10,
   },
   signinButton: {
-    //backgroundColor: colors.tint,
     borderRadius: 8,
     marginHorizontal: 20,
     height: 50,

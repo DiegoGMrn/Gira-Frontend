@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = async () => {
-    // perform logout logic here
+
     setIsLoading(true);
     setUserToken("");
     await AsyncStorage.removeItem("userToken");
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const isLoggedIn = async () => {
     try {
       const userToken = await AsyncStorage.getItem("userToken");
-      setUserToken(userToken || ""); // set empty string if userToken is null
+      setUserToken(userToken || ""); 
       setIsLoading(false);
       console.log("entro")
     } catch (error) {

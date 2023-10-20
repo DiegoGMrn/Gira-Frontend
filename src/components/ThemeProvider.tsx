@@ -1,33 +1,3 @@
-/*import { createContext } from "react";
-import { FC, useState } from "react";
-import { TColors } from "../constants/Colors";
-import Colors from "../constants/Colors";
-
-type ThemeContextType = {
-  colors: TColors;
-  applyColors: (colors: TColors) => void;
-};
-
-const ThemeContext = createContext<ThemeContextType | null>(null);
-
-type Props = {
-  children?: React.ReactNode;
-};
-
-const ThemeProvider: FC<Props> = ({ children }) => {
-  const [colors, setColors] = useState(Colors.light);
-
-  const applyColors = (colorTheme: TColors) => {
-    setColors(colorTheme);
-  };
-
-  return (
-    <ThemeContext.Provider value={{ applyColors, colors }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-};
-export { ThemeContext, ThemeProvider };*/
 
 import React, {
   createContext,
@@ -46,7 +16,7 @@ interface ThemeProviderProps {
 
 interface ThemeContextType {
   dark: boolean;
-  colors: any; // Cambia esto al tipo correcto de tus colores (lightColors/darkColors).
+  colors: any; 
   setScheme: (scheme: "light" | "dark") => void;
 }
 
@@ -83,5 +53,5 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   );
 };
 
-// creating a custom hook for accesing all the value
+
 export const useTheme = () => useContext(ThemeContext);
