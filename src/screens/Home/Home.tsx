@@ -83,9 +83,11 @@ function Home({ navigation }: HomeProps) {
           backgroundColor: colors.background,
         }}
       >
+        <TouchableOpacity onPress={() => (logout())}>
         <Text style={{ fontSize: 24, fontWeight: "bold", color: colors.text }}>
           Inicio
         </Text>
+        </TouchableOpacity>
         <View style={{ flexDirection: "row" }}>
           <TouchableOpacity style={{ paddingLeft: 12 }}>
             <Ionicons name="search" size={30} color={colors.text} />

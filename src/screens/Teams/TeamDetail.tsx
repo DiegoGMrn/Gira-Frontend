@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,9 @@ import { Shadow } from "react-native-shadow-2";
 import { NavigationProp, useRoute } from "@react-navigation/native";
 import Modal from "react-native-modal";
 import Toast from "react-native-toast-message";
+import { useFocusEffect } from "@react-navigation/native";
+
+
 interface TeamDetailScreenProps {
   navigation: NavigationProp<any>;
 }
@@ -36,8 +39,9 @@ function TeamDetailScreen(
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [isCreateModalVisible, setCreateModalVisible] = useState(false);
   const [isdeleteModalVisible, setdeleteModalVisible] = useState(false);
-  const [newName, setNewName] = useState(route2.params.teamName);
-  const [newName2, setNewName2] = useState(route2.params.teamName);
+  const { teamName: initialTeamName } = route2.params.teamName;
+  const [newName, setNewName] = useState(initialTeamName);
+  const [newName2, setNewName2] = useState(initialTeamName);
   const [memberEmail, setMemberEmail] = useState("");
   const get_teams_m = gql`
     mutation showInfoEquipo {
@@ -123,6 +127,12 @@ function TeamDetailScreen(
       }
     },
   });
+
+  useEffect(() => {
+    // Este efecto se ejecutará cada vez que cambien los parámetros de la ruta.
+    setNewName(route2.params.teamName);
+    setNewName2(route2.params.teamName);
+  }, [route2.params.teamName]);
 
   const showToastSuccess = () => {
     Toast.show({
@@ -215,6 +225,8 @@ function TeamDetailScreen(
     setdeleteModalVisible(false);
   };
 
+  console.log("nombre", route2.params.teamName);
+  console.log("nombre2", newName2);
   return (
     <View style={{ flex: 1, backgroundColor: colors.background2 }}>
       <StatusBar

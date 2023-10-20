@@ -13,6 +13,8 @@ import { useTheme } from "../../components/ThemeProvider";
 import { Shadow } from "react-native-shadow-2";
 import Modal from "react-native-modal";
 import Toast from "react-native-toast-message";
+import { useFocusEffect } from "@react-navigation/native";
+
 
 interface TeamScreenProps {
   navigation: any;
@@ -64,12 +66,22 @@ function TeamScreen({ navigation }: TeamScreenProps) {
       // Aquí puedes trabajar con los datos recibidos
     }
   }, [loading, error, data]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // Esta función se ejecutará cada vez que la pantalla reciba el enfoque
+      refetchTeamData();
+    }, [])
+  );
+
   if (loading) {
     return <Text>Cargando...</Text>;
   }
   if (error) {
     return <Text>Error: {error.message}</Text>;
   }
+
+  
 
   const showToastSuccess = () => {
     Toast.show({
