@@ -17,44 +17,45 @@ import {
 } from "@react-navigation/native";
 import Modal from "react-native-modal";
 import Toast from "react-native-toast-message";
+import RNPickerSelect from "react-native-picker-select";
 
-interface TeamDetailScreenProps {
+interface TeamsProjectScreenProps {
   navigation: NavigationProp<any>;
 }
 
-interface TeamDetailScreenRouteProps {
+interface TeamsProjectScreenRouteProps {
   route: {
     params: {
-      teamId: string;
-      teamName: string;
+      projectId: string;
+      projectName: string;
+      teamid: string;
     };
   };
 }
 
-function TeamDetailScreen(
-  { navigation }: TeamDetailScreenProps,
-  { route }: TeamDetailScreenRouteProps
+function TeamsProjectScreen(
+  { navigation }: TeamsProjectScreenProps,
+  { route }: TeamsProjectScreenRouteProps
 ) {
   const { dark, colors, setScheme } = useTheme();
   const route2 = useRoute();
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [isCreateModalVisible, setCreateModalVisible] = useState(false);
   const [isdeleteModalVisible, setdeleteModalVisible] = useState(false);
-  const { teamName: initialTeamName } = route2.params.teamName;
-  const [newName, setNewName] = useState(initialTeamName);
-  const [newName2, setNewName2] = useState(initialTeamName);
+  //const { teamName: initialTeamName } = route2.params.teamName;
+  //const [newName, setNewName] = useState(initialTeamName);
+  //const [newName2, setNewName2] = useState(initialTeamName);
   const [memberEmail, setMemberEmail] = useState("");
   const [members, setMembers] = useState([]);
+  const [teams, setTeams] = useState([]);
+  const [teamName, setTeamName] = useState(""); 
+  const [selector, setSelector] = useState("");
+  const [teamProject, setTeamProject] = useState([]);
+const [teamid, setTeamid] = useState("");
 
-  const update_name_m = gql`
-    mutation updateEquipoName($updateNameInput: UpdateEquipoNameInput!) {
-      updateEquipoName(updateNameInput: $updateNameInput)
-    }
-  `;
-
-  const add_member_m = gql`
-    mutation agregarIntegrante($agregarIntegrante: AgregarIntegrante!) {
-      agregarIntegrante(agregarIntegrante: $agregarIntegrante)
+  const add_team_m = gql`
+    mutation agregarEquipo($agregarEquipo: AgregarEquipo!) {
+      agregarEquipo(agregarEquipo: $agregarEquipo)
     }
   `;
 
@@ -64,25 +65,41 @@ function TeamDetailScreen(
     }
   `;
 
-  const get_members_m = gql`
-    query mostrarIntegrantes($mostrarIntegrantes: MostrarIntegrantes!) {
-      mostrarIntegrantes(mostrarIntegrantes: $mostrarIntegrantes)
+  const get_teams_m = gql`
+    query showInfoEquipo {
+      showInfoEquipo
     }
   `;
 
+  const get_teams_project = gql`
+    query showInfoEquipoProyecto(
+      $mostrarEquiposProyecto: MostrarEquiposProyecto!
+    ) {
+      showInfoEquipoProyecto(mostrarEquiposProyecto: $mostrarEquiposProyecto)
+    }
+  `;
   const {
     loading,
     error,
     data,
-    refetch: refetchMembers,
-  } = useQuery(get_members_m, {
-    variables: { mostrarIntegrantes: { nombreEquipo: route2.params.teamName } },
+    refetch: refetchTeamData,
+  } = useQuery(get_teams_m);
+
+  const {
+    loading: loading2,
+    error: error2,
+    data: data2,
+    refetch: refetchTeamData2,
+  } = useQuery(get_teams_project, {
+    variables: {
+      mostrarEquiposProyecto: { idEquipo: teamid },
+    },
   });
 
   const [delete_team] = useMutation(delete_team_m, {
     variables: {
       deleteEquipoInput: {
-        name: newName2,
+        name: teamName,
       },
     },
     onCompleted: (data) => {
@@ -100,89 +117,81 @@ function TeamDetailScreen(
     },
   });
 
-  const [add_member] = useMutation(add_member_m, {
+  const [add_team] = useMutation(add_team_m, {
     variables: {
-      agregarIntegrante: {
-        nombreEquipo: newName2,
-        correoIntegrante: memberEmail,
+      agregarEquipo: {
+        idEquipo: selector,
+        idProyecto: route2.params.projectId,
       },
     },
     onCompleted: (data) => {
-      const response = data.agregarIntegrante;
+      const response = data.agregarEquipo;
       console.log(response);
       if (response == true) {
         showToastSuccessMember();
         closeCreateModal();
-        refetchMembers();
+        route2.params.teamid = selector;
+        setTeamid(selector);
+        refetchTeamData2();
+
       } else {
         showToastErrorMember();
         closeCreateModal();
-        refetchMembers();
-      }
-    },
-  });
-
-  const [edit_name] = useMutation(update_name_m, {
-    variables: {
-      updateNameInput: {
-        antiguoNombreEquipo: route2.params.teamName,
-        nuevoNombreEquipo: newName,
-      },
-    },
-    onCompleted: (data) => {
-      const response = data.updateEquipoName;
-      console.log(response);
-      if (response == true) {
-        showToastSuccess();
-        closeEditModal();
-        setNewName2(newName);
-      } else {
-        showToastError();
-        closeCreateModal();
+        refetchTeamData2();
       }
     },
   });
 
   useEffect(() => {
-    setNewName(route2.params.teamName);
-    setNewName2(route2.params.teamName);
-    if (!loading && !error && data) {
-      console.log(data);
-      const jsonObject = JSON.parse(data.mostrarIntegrantes);
-      console.log("json", jsonObject);
-      //const jsonObject2 = JSON.parse(jsonObject);
-      //console.log("json 2", jsonObject2);
-      //var members = JSON.parse(jsonObject2.showInfoEquipo);
-      //console.log("members", members);
-      setMembers(jsonObject);
+    if(route2.params.teamid == null){
+      setTeamProject(Array.from([]));
     }
-  }, [route2.params.teamName, loading, error, data]);
+    setTeamid(route2.params.teamid ? route2.params.teamid.toString() : null);
+    
+    if (!loading && !error && data) {
+      const jsonObject = JSON.stringify(data.showInfoEquipo);
+      const jsonObject2 = JSON.parse(jsonObject);
+      console.log("json 2", jsonObject2);
 
-  const showToastSuccess = () => {
-    Toast.show({
-      type: "success",
-      text1: "Nombre editado",
-      text2: "El nombre del equipo se ha editado exitosamente.",
-      position: "top",
-      topOffset: 30,
-    });
-  };
+      if (jsonObject2 == "[]") {
+        setTeams(Array.from([]));
+      } else {
+        var proy = JSON.parse(jsonObject2);
+        setTeams(proy);
+      }
 
-  const showToastError = () => {
-    Toast.show({
-      type: "error",
-      text1: "Error",
-      text2: "Ha ocurrido un error, por favor intente de nuevo.",
-      position: "top",
-      topOffset: 30,
-    });
-  };
+      console.log("teams", teams);
+    }
+
+    if (!loading2 && !error2 && data2) {
+      const jsonObject = JSON.stringify(data2.showInfoEquipoProyecto);
+      const jsonObject2 = JSON.parse(jsonObject);
+      console.log("json 2", jsonObject2);
+
+      if (jsonObject2 == "[]") {
+        setTeamProject(Array.from([]));
+      } else {
+        var proy = JSON.parse(jsonObject2);
+        setTeamProject(proy);
+      }
+
+      console.log("teams2", teamProject);
+    }
+  }, [loading, error, data, loading2, error2, data2, route2.params.teamid]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+
+      refetchTeamData();
+      refetchTeamData2();
+    }, [route2.params.teamid, teamid])
+  );
 
   const showToastSuccessMember = () => {
     Toast.show({
       type: "success",
-      text1: "Integrante agregado",
-      text2: "El integrante se ha agregado exitosamente",
+      text1: "Equipo agregado agregado",
+      text2: "El equipo se ha agregado exitosamente",
       position: "top",
       topOffset: 30,
     });
@@ -192,7 +201,7 @@ function TeamDetailScreen(
     Toast.show({
       type: "error",
       text1: "Error",
-      text2: "No se pudo agregar al usuario.",
+      text2: "No se pudo agregar el equipo.",
       position: "top",
       topOffset: 30,
     });
@@ -246,14 +255,12 @@ function TeamDetailScreen(
     setdeleteModalVisible(false);
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      refetchMembers();
-    }, [])
-  );
+  useFocusEffect(React.useCallback(() => {}, []));
 
-  console.log("nombre", route2.params.teamName);
-  console.log("nombre2", newName2);
+  //console.log("nombre", route2.params.teamName);
+  //console.log("nombre2", newName2);
+  console.log("teamid", route2.params.teamid);
+  console.log("teamproject", teamProject);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background2 }}>
@@ -275,7 +282,15 @@ function TeamDetailScreen(
         }}
       >
         <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity onPress={() => navigation.navigate("Teams")}>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate("ProyectDetail", {
+                projectId: route2.params.projectId,
+                projectName: route2.params.projectName,
+                teamid: route2.params.teamid,
+              })
+            }
+          >
             <Ionicons
               name="ios-arrow-back"
               style={{ paddingTop: 5, paddingRight: 5 }}
@@ -286,11 +301,8 @@ function TeamDetailScreen(
           <Text
             style={{ fontSize: 24, fontWeight: "bold", color: colors.text }}
           >
-            {newName2}
+            Equipos
           </Text>
-          <TouchableOpacity style={styles.editIcon} onPress={openEditModal}>
-            <Ionicons name="ios-create" size={24} color={colors.tint} />
-          </TouchableOpacity>
         </View>
         <View style={{ flexDirection: "row" }}>
           <TouchableOpacity onPress={openCreateModal}>
@@ -317,8 +329,8 @@ function TeamDetailScreen(
               styles.modalInput,
               { color: colors.text, borderColor: colors.tint },
             ]}
-            value={newName}
-            onChangeText={(text) => setNewName(text)}
+            //value={()}
+            //onChangeText={(text) => ()}
           />
           <View style={{ flexDirection: "row", justifyContent: "center" }}>
             <TouchableOpacity
@@ -355,14 +367,16 @@ function TeamDetailScreen(
           ]}
         >
           <Text style={[styles.modalTitle, { color: colors.text }]}>
-            Agregar Integrante
+            Agregar Equipo
           </Text>
-          <TextInput
-            style={[
-              styles.modalInput,
-              { color: colors.text, borderColor: colors.tint },
-            ]}
-            onChangeText={(text) => setMemberEmail(text)}
+          <RNPickerSelect
+            onValueChange={(value) => setSelector(value)}
+            items={teams.map((team) => {
+              return {
+                label: team.nombre,
+                value: team.id,
+              };
+            })}
           />
           <View style={{ flexDirection: "row", justifyContent: "center" }}>
             <TouchableOpacity
@@ -370,7 +384,7 @@ function TeamDetailScreen(
                 styles.modalButton,
                 { backgroundColor: colors.tint, marginHorizontal: 12 },
               ]}
-              onPress={() => add_member()}
+              onPress={() => add_team()}
             >
               <Text style={[styles.modalButtonText, { color: "white" }]}>
                 Guardar
@@ -438,29 +452,41 @@ function TeamDetailScreen(
 
       {/* Contenido */}
       <View style={styles.content}>
-        {members ? (
-          members.map((member) => (
+        {teamProject.length > 0 ? ( // Comprueba si 'teams' existe
+          teamProject.map((team) => (
             <TouchableOpacity
-            key={member.correo}
+              key={team.id}
               style={[styles.teamCard, { backgroundColor: colors.background }]}
+              onPress={() => {
+                navigation.navigate("EditTeamProyect", {
+                  teamId: team.id,
+                  teamName: team.nombre,
+                  projectId: route2.params.projectId,
+                  projectName: route2.params.projectName,
+                });
+              }}
             >
-              <View style={styles.teamIcons}>
-                <Ionicons
-                  name="person-circle"
-                  size={50}
-                  color={colors.text}
-                  style={{ margin: 0, padding: 0 }}
-                />
-              </View>
-
               <View style={styles.teamInfo}>
-                  <Text style={[styles.teamName, { color: colors.text }]}>
-                    {member.nombre}
-                  </Text>
-                <Text style={[{ color: colors.text, fontSize: 16, paddingLeft: 10 }]}>
-                  {member.rol}
+                <Text style={[styles.teamName, { color: colors.tint }]}>
+                  {team.nombre}
                 </Text>
+                <View style={styles.teamIcons}>
+                  <Ionicons name="people" size={18} color={colors.text} />
+                  <Text style={{ color: colors.text, paddingLeft: 2 }}>
+                    {team.cantidadMiembros}
+                  </Text>
+                  <Text style={{ color: colors.text }}>
+                    {team.cantidadMiembros == 1 ? " Miembro" : " Miembros"}
+                  </Text>
+                </View>
               </View>
+              <TouchableOpacity>
+                <Ionicons
+                  name="ios-arrow-forward"
+                  size={24}
+                  color={colors.tint}
+                />
+              </TouchableOpacity>
             </TouchableOpacity>
           ))
         ) : (
@@ -471,8 +497,8 @@ function TeamDetailScreen(
               textAlign: "center",
             }}
           >
-            El equipo no tiene integrantes
-          </Text>
+            No tienes equipos
+          </Text> // Muestra un mensaje si 'teams' no existe
         )}
       </View>
     </View>
@@ -549,4 +575,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TeamDetailScreen;
+export default TeamsProjectScreen;

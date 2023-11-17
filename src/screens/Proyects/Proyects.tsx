@@ -14,39 +14,40 @@ import Modal from "react-native-modal";
 import Toast from "react-native-toast-message";
 import { useFocusEffect } from "@react-navigation/native";
 
-interface TeamScreenProps {
+interface ProyectScreenProps {
   navigation: any;
 }
 
-function TeamScreen({ navigation }: TeamScreenProps) {
+function ProyectScreen({ navigation }: ProyectScreenProps) {
   const { dark, colors, setScheme } = useTheme();
   const [isCreateModalVisible, setCreateModalVisible] = useState(false);
   const [newName, setNewName] = useState("");
-  const get_teams_m = gql`
-    query showInfoEquipo {
-      showInfoEquipo
+  const [proyects, setProyects] = useState([]);
+  const get_proyects_m = gql`
+    query showInfoProyecto {
+        showInfoProyecto
     }
   `;
 
-  
-
-  const createEquipo_m = gql`
-    mutation createEquipo($equipoInput: CreateEquipoInput!) {
-      createEquipo(equipoInput: $equipoInput)
+  const createProyect_m = gql`
+    mutation createProyecto($proyectoInput: CreateProyectoInput!) {
+      createProyecto(proyectoInput: $proyectoInput)
     }
   `;
-  const [createTeam] = useMutation(createEquipo_m, {
+  const [createProyect] = useMutation(createProyect_m, {
     variables: {
-      equipoInput: {
+      proyectoInput: {
         name: newName,
       },
     },
     onCompleted: (data) => {
-      const confirm = data.createEquipo;
+      const confirm = data.createProyecto;
+      console.log(data)
+      console.log("confirm", confirm)
       if (confirm == true) {
         showToastSuccess();
         closeCreateModal();
-        refetchTeamData();
+        refetchProyectsData();
       } else {
         showToastError();
       }
@@ -57,19 +58,28 @@ function TeamScreen({ navigation }: TeamScreenProps) {
     loading,
     error,
     data,
-    refetch: refetchTeamData,
-  } = useQuery(get_teams_m);
-
-  
+    refetch: refetchProyectsData,
+  } = useQuery(get_proyects_m);
 
   useEffect(() => {
     if (!loading && !error && data) {
+      const jsonObject = JSON.stringify(data.showInfoProyecto);
+      const jsonObject2 = JSON.parse(jsonObject);
+      console.log("json 2", jsonObject2);
+      
+      if (jsonObject2 == "[]"){
+        setProyects(Array.from([]));
+      }else{
+        var proy = JSON.parse(jsonObject2);
+        setProyects(proy);
+      }
+
     }
   }, [loading, error, data]);
 
   useFocusEffect(
     React.useCallback(() => {
-      refetchTeamData();
+      refetchProyectsData();
     }, [])
   );
 
@@ -112,11 +122,7 @@ function TeamScreen({ navigation }: TeamScreenProps) {
     setCreateModalVisible(false);
   };
 
-  const jsonObject = JSON.stringify(data);
-  const jsonObject2 = JSON.parse(jsonObject);
-  console.log("json 2", jsonObject2);
-  var teams = JSON.parse(jsonObject2.showInfoEquipo);
-  console.log("teams", teams);
+  
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background2 }}>
@@ -137,11 +143,11 @@ function TeamScreen({ navigation }: TeamScreenProps) {
           backgroundColor: colors.background,
         }}
       >
-        <TouchableOpacity onPress={() => refetchTeamData()}>
+        <TouchableOpacity onPress={() => refetchProyectsData()}>
           <Text
             style={{ fontSize: 24, fontWeight: "bold", color: colors.text }}
           >
-            Equipos
+            Proyectos
           </Text>
         </TouchableOpacity>
         <View style={{ flexDirection: "row" }}>
@@ -163,7 +169,7 @@ function TeamScreen({ navigation }: TeamScreenProps) {
           ]}
         >
           <Text style={[styles.modalTitle, { color: colors.text }]}>
-            Agregar Equipo
+            Agregar Proyecto
           </Text>
           <TextInput
             style={[
@@ -178,7 +184,7 @@ function TeamScreen({ navigation }: TeamScreenProps) {
                 styles.modalButton,
                 { backgroundColor: colors.tint, marginHorizontal: 12 },
               ]}
-              onPress={() => createTeam()}
+              onPress={() => createProyect()}
             >
               <Text style={[styles.modalButtonText, { color: "white" }]}>
                 Guardar
@@ -197,26 +203,27 @@ function TeamScreen({ navigation }: TeamScreenProps) {
       </Modal>
       {/* Contenido */}
       <View style={styles.content}>
-        {teams ? ( // Comprueba si 'teams' existe
-          teams.map((team) => (
+        {proyects.length > 0 ? ( // Comprueba si 'teams' existe
+          proyects.map((proyect) => (
             <TouchableOpacity
-              key={team.id}
+              key={proyect.id}
               style={[styles.teamCard, { backgroundColor: colors.background }]}
               onPress={() => {
-                navigation.navigate("TeamDetail", {
-                  teamId: team.id,
-                  teamName: team.nombre,
+                navigation.navigate("ProyectDetail", {
+                  projectId: proyect.id,
+                  projectName: proyect.nombre,
+                  teamid: proyect.idEquipo,
                 });
               }}
             >
               <View style={styles.teamInfo}>
                 <Text style={[styles.teamName, { color: colors.tint }]}>
-                  {team.nombre}
+                  {proyect.nombre}
                 </Text>
                 <View style={styles.teamIcons}>
-                <Ionicons name="people" size={18} color={colors.text} />
-                <Text style={{ color: colors.text, paddingLeft:2 }}>{team.cantidadMiembros}</Text>
-                <Text style={{ color: colors.text }}>{team.cantidadMiembros == 1 ? " Miembro" : " Miembros" }</Text>
+                {/*<Ionicons name="people" size={18} color={colors.text} />*/}
+                {/*<Text style={{ color: colors.text, paddingLeft:2 }}>{proyect.cantidadMiembros}</Text>*/}
+                {/*<Text style={{ color: colors.text }}>{proyect.cantidadMiembros == 1 ? " Miembro" : " Miembros" }</Text>*/}
                 </View>
               </View>
               <TouchableOpacity>
@@ -236,7 +243,7 @@ function TeamScreen({ navigation }: TeamScreenProps) {
               textAlign: "center",
             }}
           >
-            No tienes equipos
+            No tienes proyectos
           </Text> // Muestra un mensaje si 'teams' no existe
         )}
       </View>
@@ -308,4 +315,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TeamScreen;
+export default ProyectScreen;

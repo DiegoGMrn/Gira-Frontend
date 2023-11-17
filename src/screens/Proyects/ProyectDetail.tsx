@@ -17,35 +17,40 @@ import {
 } from "@react-navigation/native";
 import Modal from "react-native-modal";
 import Toast from "react-native-toast-message";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import ProgressCircle from "react-native-progress-circle";
 
-interface TeamDetailScreenProps {
+interface ProyectDetailScreenProps {
   navigation: NavigationProp<any>;
 }
 
-interface TeamDetailScreenRouteProps {
+interface ProyectDetailScreenRouteProps {
   route: {
     params: {
-      teamId: string;
-      teamName: string;
+      projectId: string;
+      projectName: string;
+      teamid: string;
     };
   };
 }
 
-function TeamDetailScreen(
-  { navigation }: TeamDetailScreenProps,
-  { route }: TeamDetailScreenRouteProps
+function ProyectDetailScreen(
+  { navigation }: ProyectDetailScreenProps,
+  { route }: ProyectDetailScreenRouteProps
 ) {
   const { dark, colors, setScheme } = useTheme();
   const route2 = useRoute();
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [isCreateModalVisible, setCreateModalVisible] = useState(false);
   const [isdeleteModalVisible, setdeleteModalVisible] = useState(false);
-  const { teamName: initialTeamName } = route2.params.teamName;
+  const { initialTeamName } = route2.params.projectName;
   const [newName, setNewName] = useState(initialTeamName);
   const [newName2, setNewName2] = useState(initialTeamName);
+  const [teamid, setTeamid] = useState(route2.params.teamid);
   const [memberEmail, setMemberEmail] = useState("");
   const [members, setMembers] = useState([]);
-
+  const [project, setProject] = useState({});
+  console.log("route", route2.params.projectName);
   const update_name_m = gql`
     mutation updateEquipoName($updateNameInput: UpdateEquipoNameInput!) {
       updateEquipoName(updateNameInput: $updateNameInput)
@@ -58,9 +63,9 @@ function TeamDetailScreen(
     }
   `;
 
-  const delete_team_m = gql`
-    mutation deleteEquipo($deleteEquipoInput: DeleteEquipoInput!) {
-      deleteEquipo(deleteEquipoInput: $deleteEquipoInput)
+  const delete_proyect_m = gql`
+    mutation deleteProyecto($deleteProyectoInput: DeleteProyectoInput!) {
+      deleteProyecto(deleteProyectoInput: $deleteProyectoInput)
     }
   `;
 
@@ -79,23 +84,23 @@ function TeamDetailScreen(
     variables: { mostrarIntegrantes: { nombreEquipo: route2.params.teamName } },
   });
 
-  const [delete_team] = useMutation(delete_team_m, {
+  const [delete_team] = useMutation(delete_proyect_m, {
     variables: {
-      deleteEquipoInput: {
+      deleteProyectoInput: {
         name: newName2,
       },
     },
     onCompleted: (data) => {
-      const response = data.deleteEquipo;
+      const response = data.deleteProyecto;
       console.log(response);
       if (response == true) {
         showToastSuccessDelete();
         closedeleteModal();
-        navigation.navigate("Teams");
+        navigation.navigate("Proyects");
       } else {
         showToastErrorDelete();
         closedeleteModal();
-        navigation.navigate("Teams");
+        navigation.navigate("Proyects");
       }
     },
   });
@@ -144,8 +149,8 @@ function TeamDetailScreen(
   });
 
   useEffect(() => {
-    setNewName(route2.params.teamName);
-    setNewName2(route2.params.teamName);
+    setNewName(route2.params.projectName);
+    setNewName2(route2.params.projectName);
     if (!loading && !error && data) {
       console.log(data);
       const jsonObject = JSON.parse(data.mostrarIntegrantes);
@@ -157,6 +162,13 @@ function TeamDetailScreen(
       setMembers(jsonObject);
     }
   }, [route2.params.teamName, loading, error, data]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setNewName(route2.params.projectName);
+      setNewName2(route2.params.projectName);
+    }, [route2.params.projectName])
+  );
 
   const showToastSuccess = () => {
     Toast.show({
@@ -252,7 +264,7 @@ function TeamDetailScreen(
     }, [])
   );
 
-  console.log("nombre", route2.params.teamName);
+  console.log("nombre", route2.params.projectName);
   console.log("nombre2", newName2);
 
   return (
@@ -270,12 +282,12 @@ function TeamDetailScreen(
           padding: 13,
           paddingHorizontal: 16,
           marginTop: 14,
-          marginBottom: 16,
+          marginBottom: 0,
           backgroundColor: colors.background,
         }}
       >
         <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity onPress={() => navigation.navigate("Teams")}>
+          <TouchableOpacity onPress={() => navigation.navigate("Proyects")}>
             <Ionicons
               name="ios-arrow-back"
               style={{ paddingTop: 5, paddingRight: 5 }}
@@ -283,24 +295,122 @@ function TeamDetailScreen(
               color={colors.tint}
             />
           </TouchableOpacity>
-          <Text
-            style={{ fontSize: 24, fontWeight: "bold", color: colors.text }}
-          >
-            {newName2}
-          </Text>
-          <TouchableOpacity style={styles.editIcon} onPress={openEditModal}>
-            <Ionicons name="ios-create" size={24} color={colors.tint} />
-          </TouchableOpacity>
         </View>
         <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity onPress={openCreateModal}>
-            <Ionicons name="add" size={30} color={colors.text} />
-          </TouchableOpacity>
           <TouchableOpacity onPress={opendeleteModal}>
             <Ionicons name="close" size={30} color={colors.text} />
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Nuevo Contenido */}
+      <View style={{ flex: 1 }}>
+        <View
+          style={[
+            styles.projectDetailsSection,
+            { backgroundColor: colors.background },
+          ]}
+        >
+          <View style={styles.projectTitleWrapper}>
+            <Text style={[styles.projectTitle, {color: colors.text}]}>{newName2}</Text>
+            {/*<TouchableOpacity style={styles.editIcon} onPress={openEditModal}>
+              <Ionicons name="ios-create" size={20} color={colors.tint} />
+            </TouchableOpacity>*/}
+          </View>
+          <Text style={styles.projectDescription}></Text>
+          <View style={styles.projectTeamAndProgress}>
+            <View style={styles.projectProgressWrapper}>
+              <ProgressCircle
+                percent={75}
+                radius={50}
+                borderWidth={10}
+                color={colors.tint}
+                shadowColor="#f4f4f4"
+                bgColor="#fff"
+              >
+                <Text style={styles.projectProgress}>{75}%</Text>
+              </ProgressCircle>
+            </View>
+            <View>
+              <Text style={[styles.projectTeamTitle, {color: colors.text}]}>Equipo</Text>
+              <TouchableOpacity
+                style={styles.projectTeamWrapper}
+                onPress={() => {
+                  navigation.navigate("TeamsProject", {
+                    projectId: route2.params.projectId,
+                    projectName: route2.params.projectName,
+                    teamid: route2.params.teamid,
+                  });
+                }}
+              >
+                <Ionicons
+                  name="person-circle"
+                  size={40}
+                  color={colors.text}
+                  style={styles.projectMemberPhoto}
+                />
+                <Ionicons
+                  name="person-circle"
+                  size={40}
+                  color={colors.tint}
+                  style={styles.projectMemberPhoto}
+                />
+                <Ionicons
+                  name="person-circle"
+                  size={40}
+                  color={colors.text}
+                  style={styles.projectMemberPhoto}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+          {/*<Text style={styles.projectStatus}>{10}</Text>*/}
+        </View>
+      </View>
+
+      {/* Contenido */}
+      <View style={styles.content}>
+        {members ? (
+          members.map((member) => (
+            <TouchableOpacity
+              style={[styles.teamCard, { backgroundColor: colors.background }]}
+            >
+              <View style={styles.teamIcons}>
+                <Ionicons
+                  name="person-circle"
+                  size={50}
+                  color={colors.text}
+                  style={{ margin: 0, padding: 0 }}
+                />
+              </View>
+
+              <View style={styles.teamInfo}>
+                <Text style={[styles.teamName, { color: colors.text }]}>
+                  {member.nombre}
+                </Text>
+                <Text
+                  style={[
+                    { color: colors.text, fontSize: 16, paddingLeft: 10 },
+                  ]}
+                >
+                  {member.rol}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Text
+            style={{
+              color: colors.text,
+              alignItems: "center",
+              textAlign: "center",
+            }}
+          >
+            El equipo no tiene integrantes
+          </Text>
+        )}
+      </View>
+
       {/* Modal de Edición de Nombre */}
       <Modal isVisible={isEditModalVisible}>
         <View
@@ -435,46 +545,6 @@ function TeamDetailScreen(
           </View>
         </View>
       </Modal>
-
-      {/* Contenido */}
-      <View style={styles.content}>
-        {members ? (
-          members.map((member) => (
-            <TouchableOpacity
-            key={member.correo}
-              style={[styles.teamCard, { backgroundColor: colors.background }]}
-            >
-              <View style={styles.teamIcons}>
-                <Ionicons
-                  name="person-circle"
-                  size={50}
-                  color={colors.text}
-                  style={{ margin: 0, padding: 0 }}
-                />
-              </View>
-
-              <View style={styles.teamInfo}>
-                  <Text style={[styles.teamName, { color: colors.text }]}>
-                    {member.nombre}
-                  </Text>
-                <Text style={[{ color: colors.text, fontSize: 16, paddingLeft: 10 }]}>
-                  {member.rol}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))
-        ) : (
-          <Text
-            style={{
-              color: colors.text,
-              alignItems: "center",
-              textAlign: "center",
-            }}
-          >
-            El equipo no tiene integrantes
-          </Text>
-        )}
-      </View>
     </View>
   );
 }
@@ -516,8 +586,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   editIcon: {
-    marginLeft: 8,
-    marginTop: 3,
+    marginLeft: 0,
+    marginTop: 0,
   },
   // Estilos del modal
   modalContainer: {
@@ -547,6 +617,137 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
   },
+  nameAndGraphContainer: {
+    padding: 16,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    marginBottom: 16,
+  },
+
+  nameContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  graphContainer: {
+    marginTop: 16,
+    alignItems: "center",
+  },
+
+  graph: {
+    fontSize: 16,
+    color: "black",
+  },
+
+  teamLink: {
+    marginTop: 10,
+    //color: colors.tint,
+  },
+  projectDetailsSection: {
+    paddingTop: 15,
+    paddingHorizontal: 16,
+    borderBottomStartRadius: 30,
+    borderBottomEndRadius: 30,
+    paddingBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.5,
+    shadowRadius: 1,
+    //elevation: 1,
+    marginBottom: 15,
+  },
+  projectTitleWrapper: {
+    marginBottom: 5,
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  projectTitle: {
+    fontWeight: "bold",
+    fontSize: 24,
+    marginRight: 10,
+  },
+  projectTeamAndProgress: {
+    paddingTop: 0,
+    paddingLeft: 50,
+    display: "flex",
+    flexDirection: "row",
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  projectTeamTitle: { fontWeight: "bold", marginBottom: 5 },
+  projectDescription: {
+    //color: appTheme.INACTIVE_COLOR,
+    marginBottom: 0,
+  },
+  projectProgressWrapper: { marginRight: 30 },
+  projectProgress: {
+    fontWeight: "bold",
+    fontSize: 18,
+  },
+  projectTeamWrapper: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingLeft: 10,
+  },
+  projectMemberPhoto: {
+    height: 40,
+    width: 40,
+    borderRadius: 50,
+    marginLeft: -15,
+  },
+  plusBtnContainer: {
+    //backgroundColor: appTheme.COLOR1,
+    height: 40,
+    width: 40,
+    borderRadius: 50,
+    marginLeft: -10,
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  projectStatus: {
+    marginLeft: "auto",
+    borderRadius: 20,
+    textAlign: "center",
+    //borderColor: appTheme.INACTIVE_COLOR,
+    borderWidth: 1,
+    textTransform: "capitalize",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    fontSize: 15,
+    fontWeight: "bold",
+    //color: appTheme.INACTIVE_COLOR,
+  },
+  projectBody: {
+    paddingTop: 20,
+    paddingHorizontal: 16,
+    paddingBottom: 120,
+  },
+  projectTabs: {
+    backgroundColor: "#fff",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 3,
+    borderRadius: 7,
+    marginBottom: 5,
+  },
+  projectTab: {
+    width: "30%",
+    borderRadius: 7,
+  },
+  activeProjectTab: {
+    //backgroundColor: appTheme.PRIMARY_COLOR,
+  },
+  projectTabText: { fontSize: 16, paddingVertical: 7, textAlign: "center" },
+  activeProjectTabText: {
+    color: "#fff",
+  },
 });
 
-export default TeamDetailScreen;
+export default ProyectDetailScreen;

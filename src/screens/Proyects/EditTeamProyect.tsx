@@ -27,11 +27,13 @@ interface TeamDetailScreenRouteProps {
     params: {
       teamId: string;
       teamName: string;
+      projectId: string;
+      projectName: string;
     };
   };
 }
 
-function TeamDetailScreen(
+function EditTeamProyectScreen(
   { navigation }: TeamDetailScreenProps,
   { route }: TeamDetailScreenRouteProps
 ) {
@@ -275,7 +277,15 @@ function TeamDetailScreen(
         }}
       >
         <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity onPress={() => navigation.navigate("Teams")}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("TeamsProject", {
+                projectId: route2.params.projectId,
+                projectName: route2.params.projectName,
+                teamid: route2.params.teamid,
+              });
+            }}
+          >
             <Ionicons
               name="ios-arrow-back"
               style={{ paddingTop: 5, paddingRight: 5 }}
@@ -454,10 +464,14 @@ function TeamDetailScreen(
               </View>
 
               <View style={styles.teamInfo}>
-                  <Text style={[styles.teamName, { color: colors.text }]}>
-                    {member.nombre}
-                  </Text>
-                <Text style={[{ color: colors.text, fontSize: 16, paddingLeft: 10 }]}>
+                <Text style={[styles.teamName, { color: colors.text }]}>
+                  {member.nombre}
+                </Text>
+                <Text
+                  style={[
+                    { color: colors.text, fontSize: 16, paddingLeft: 10 },
+                  ]}
+                >
                   {member.rol}
                 </Text>
               </View>
@@ -549,4 +563,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TeamDetailScreen;
+export default EditTeamProyectScreen;

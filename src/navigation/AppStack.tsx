@@ -16,6 +16,10 @@ import ProfileScreen from "../screens/Profile/Profile";
 import SettingsScreen from "../screens/Settings/Settings";
 import ChangepwdAppScreen from "../screens/Settings/ChangepwdApp";
 import TeamDetailScreen from "../screens/Teams/TeamDetail";
+import Proyect from "../screens/Proyects/Proyects";
+import ProyectDetail from "../screens/Proyects/ProyectDetail";
+import TeamsProject from "../screens/Proyects/ProyectTeams";
+import EditTeamProyect from "../screens/Proyects/EditTeamProyect";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { Shadow } from "react-native-shadow-2";
@@ -39,10 +43,12 @@ function CustomTabBar({ navigation }: BottomTabBarProps) {
           <TouchableOpacity onPress={() => navigation.navigate("Home")}>
             <Ionicons name="home" size={30} color={colors.text} />
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Proyects")}>
+            <Ionicons name="folder" size={30} color={colors.text} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("Teams")}>
             <Ionicons name="people" size={30} color={colors.text} />
           </TouchableOpacity>
-
           <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
             <Ionicons name="person-circle" size={30} color={colors.text} />
           </TouchableOpacity>
@@ -64,6 +70,10 @@ const BottomStack = () => {
       tabBar={(props) => <CustomTabBar {...props} />}
     >
       <BottomTab.Screen name="Home" component={Home} options={{}} />
+      <BottomTab.Screen name="Proyects" component={Proyect} />
+      <BottomTab.Screen name="ProyectDetail" component={ProyectDetail} />
+      <BottomTab.Screen name="TeamsProject" component={TeamsProject} />
+      <BottomTab.Screen name="EditTeamProyect" component={EditTeamProyect} />
       <BottomTab.Screen name="Teams" component={Teams} />
       <BottomTab.Screen name="TeamDetail" component={TeamDetailScreen} />
       <BottomTab.Screen name="Profile" component={ProfileScreen} />
