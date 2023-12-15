@@ -285,7 +285,7 @@ function ProyectDetailScreen(
       setFilteredTasks(tasks);
     } else {
       const filtered = tasks.filter((task) =>
-        filter === "Completadas" ? task.completed : !task.completed
+        filter === "Completadas" ? task.estado : !task.estado
       );
       setFilteredTasks(filtered);
     }
