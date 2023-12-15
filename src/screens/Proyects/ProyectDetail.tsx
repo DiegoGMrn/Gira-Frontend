@@ -6,6 +6,7 @@ import {
   StatusBar,
   StyleSheet,
   TextInput,
+  FlatList,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { gql, useMutation, useQuery } from "@apollo/client";
@@ -17,8 +18,11 @@ import {
 } from "@react-navigation/native";
 import Modal from "react-native-modal";
 import Toast from "react-native-toast-message";
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import ProgressCircle from "react-native-progress-circle";
+import CreateTaskModal from "../../components/CreateTaskModal";
+import DropDownPicker from "react-native-dropdown-picker";
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { ScrollView } from "react-native";
 
 interface ProyectDetailScreenProps {
   navigation: NavigationProp<any>;
@@ -46,10 +50,32 @@ function ProyectDetailScreen(
   const { initialTeamName } = route2.params.projectName;
   const [newName, setNewName] = useState(initialTeamName);
   const [newName2, setNewName2] = useState(initialTeamName);
-  const [teamid, setTeamid] = useState(route2.params.teamid);
-  const [memberEmail, setMemberEmail] = useState("");
-  const [members, setMembers] = useState([]);
+  //const [teamid, setTeamid] = useState(route2.params.teamid);
+  const [nameTask, setNameTask] = useState("");
   const [project, setProject] = useState({});
+  const [tasks, setTasks] = useState([]);
+  const [filteredTasks, setFilteredTasks] = useState([]);
+  const [selectedFilter, setSelectedFilter] = useState("All Tasks");
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [dueDate, setDueDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  
+  // Simulando datos de tareas
+  const initialTasks = [
+    { id: 1, name: "Task 1", completed: false },
+    { id: 2, name: "Task 2", completed: true },
+    // ... más tareas según tu estructura de datos
+  ];
+
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(null);
+  const [items, setItems] = useState([
+    { label: "Tareas", value: "Tareas" },
+    { label: "En curso", value: "En curso" },
+    { label: "Completadas", value: "Completadas" },
+  ]);
+
   console.log("route", route2.params.projectName);
   const update_name_m = gql`
     mutation updateEquipoName($updateNameInput: UpdateEquipoNameInput!) {
@@ -57,12 +83,12 @@ function ProyectDetailScreen(
     }
   `;
 
-  const add_member_m = gql`
-    mutation agregarIntegrante($agregarIntegrante: AgregarIntegrante!) {
-      agregarIntegrante(agregarIntegrante: $agregarIntegrante)
+  const add_task_m = gql`
+    mutation agregarTarea($agregarTarea: AgregarTarea!) {
+      agregarTarea(agregarTarea: $agregarTarea)
     }
   `;
-
+  
   const delete_proyect_m = gql`
     mutation deleteProyecto($deleteProyectoInput: DeleteProyectoInput!) {
       deleteProyecto(deleteProyectoInput: $deleteProyectoInput)
@@ -75,13 +101,50 @@ function ProyectDetailScreen(
     }
   `;
 
-  const {
+  const get_tasks_m = gql`
+    query showSoloTaskProject($mostrarSoloTaskProject: ShowSoloTaskProjectInput!) {
+      showSoloTaskProject(mostrarSoloTaskProject: $mostrarSoloTaskProject)
+    }
+  `;
+  
+  const create_task_m = gql`
+    mutation createTask($taskInput: CreateTaskInput!) {
+      createTask(taskInput: $taskInput)
+    }
+  `;
+
+  /*const {
     loading,
     error,
     data,
     refetch: refetchMembers,
   } = useQuery(get_members_m, {
     variables: { mostrarIntegrantes: { nombreEquipo: route2.params.teamName } },
+  });*/
+
+  const {loading: loading2, error: error2, data: data2, refetch} = useQuery(get_tasks_m, {variables: {mostrarSoloTaskProject: {idProyecto: parseInt(route2.params.projectId)}}})
+
+  const [add_task] = useMutation(add_task_m, {
+    variables: {
+      agregarTarea: {
+        nombreEquipo: route2.params.teamName,
+        nombreTarea: nameTask,
+        fechaVencimiento: dueDate,
+      },
+    },
+    onCompleted: (data) => {
+      const response = data.agregarTarea;
+      console.log(response);
+      if (response == true) {
+        showToastSuccess();
+        closeCreateModal();
+        refetchMembers();
+      } else {
+        showToastError();
+        closeCreateModal();
+        refetchMembers();
+      }
+    },
   });
 
   const [delete_team] = useMutation(delete_proyect_m, {
@@ -105,6 +168,11 @@ function ProyectDetailScreen(
     },
   });
 
+  const showDatepicker = () => {
+    setShowDatePicker(true);
+  };
+
+  /*
   const [add_member] = useMutation(add_member_m, {
     variables: {
       agregarIntegrante: {
@@ -125,7 +193,7 @@ function ProyectDetailScreen(
         refetchMembers();
       }
     },
-  });
+  });*/
 
   const [edit_name] = useMutation(update_name_m, {
     variables: {
@@ -148,27 +216,91 @@ function ProyectDetailScreen(
     },
   });
 
+  const [create_task] = useMutation(create_task_m, {
+    variables: {
+      taskInput: {
+        name: nameTask,
+        fechaV: dueDate.getDate()+"/"+(dueDate.getMonth()+1)+"/"+dueDate.getFullYear(),
+        idEquipo: 0,
+        idProyecto: parseFloat(route2.params.projectId),
+      },
+    },
+    onCompleted: (data) => {
+      const response = data.createTask;
+      console.log(response);
+      if (response == true) {
+
+        closeCreateModal();
+        refetch();
+      } else {
+
+        closeCreateModal();
+        refetch();
+      }
+    },
+  });
+
+
   useEffect(() => {
     setNewName(route2.params.projectName);
     setNewName2(route2.params.projectName);
-    if (!loading && !error && data) {
-      console.log(data);
+    console.log("idproyecto", route2.params.projectId);
+    refetch();
+    /*if (!loading && !error && data) {
+      //console.log(data);
       const jsonObject = JSON.parse(data.mostrarIntegrantes);
-      console.log("json", jsonObject);
+      //console.log("json", jsonObject);
       //const jsonObject2 = JSON.parse(jsonObject);
       //console.log("json 2", jsonObject2);
       //var members = JSON.parse(jsonObject2.showInfoEquipo);
       //console.log("members", members);
-      setMembers(jsonObject);
+      //setMembers(jsonObject);
+    }*/
+  }, []);
+
+  useEffect(() => {
+    //console.log("idproyecto", route2.params.projectId);
+    if(!loading2 && !error2 && data2){
+      console.log("data2", data2)
+      const jsonObject = JSON.parse(data2.showSoloTaskProject); 
+      console.log("json", jsonObject);
+
+      if (jsonObject == null) {
+        console.log("entro")
+        setTasks([]);
+        setFilteredTasks([]);
+      } else {
+        setTasks(jsonObject);
+        setFilteredTasks(jsonObject);
+      }
     }
-  }, [route2.params.teamName, loading, error, data]);
+    
+    //setTasks(initialTasks);
+    //setFilteredTasks(initialTasks);
+  }, [loading2, error2, data2]);
+
+  const filterTasks = (filter) => {
+    console.log("filter", filter);
+    if (filter === "Tareas") {
+      setFilteredTasks(tasks);
+    } else {
+      const filtered = tasks.filter((task) =>
+        filter === "Completadas" ? task.completed : !task.completed
+      );
+      setFilteredTasks(filtered);
+    }
+    setSelectedFilter(filter);
+  };
 
   useFocusEffect(
     React.useCallback(() => {
       setNewName(route2.params.projectName);
       setNewName2(route2.params.projectName);
-    }, [route2.params.projectName])
+      refetch();
+    }, [])
   );
+
+  
 
   const showToastSuccess = () => {
     Toast.show({
@@ -230,6 +362,16 @@ function ProyectDetailScreen(
     });
   };
 
+  const toggleModal = () => {
+    setCreateModalVisible(!isCreateModalVisible);
+  };
+
+  const onChangeDate = (event, selectedDate) => {
+    const currentDate = selectedDate || dueDate;
+    setShowDatePicker(Platform.OS === 'ios');
+    setDueDate(currentDate);
+  };
+
   const openEditModal = () => {
     setEditModalVisible(true);
   };
@@ -240,10 +382,6 @@ function ProyectDetailScreen(
 
   const saveNewName = () => {
     closeEditModal();
-  };
-
-  const openCreateModal = () => {
-    setCreateModalVisible(true);
   };
 
   const closeCreateModal = () => {
@@ -260,7 +398,7 @@ function ProyectDetailScreen(
 
   useFocusEffect(
     React.useCallback(() => {
-      refetchMembers();
+      //refetchMembers();
     }, [])
   );
 
@@ -302,9 +440,10 @@ function ProyectDetailScreen(
           </TouchableOpacity>
         </View>
       </View>
-
-      {/* Nuevo Contenido */}
+      
+      {/* Sub Header */}
       <View style={{ flex: 1 }}>
+
         <View
           style={[
             styles.projectDetailsSection,
@@ -312,14 +451,16 @@ function ProyectDetailScreen(
           ]}
         >
           <View style={styles.projectTitleWrapper}>
-            <Text style={[styles.projectTitle, {color: colors.text}]}>{newName2}</Text>
+            <Text style={[styles.projectTitle, { color: colors.text }]}>
+              {newName2}
+            </Text>
             {/*<TouchableOpacity style={styles.editIcon} onPress={openEditModal}>
               <Ionicons name="ios-create" size={20} color={colors.tint} />
             </TouchableOpacity>*/}
           </View>
           <Text style={styles.projectDescription}></Text>
           <View style={styles.projectTeamAndProgress}>
-            <View style={styles.projectProgressWrapper}>
+            {/*<View style={styles.projectProgressWrapper}>
               <ProgressCircle
                 percent={75}
                 radius={50}
@@ -330,9 +471,11 @@ function ProyectDetailScreen(
               >
                 <Text style={styles.projectProgress}>{75}%</Text>
               </ProgressCircle>
-            </View>
+          </View>*/}
             <View>
-              <Text style={[styles.projectTeamTitle, {color: colors.text}]}>Equipo</Text>
+              <Text style={[styles.projectTeamTitle, { color: colors.text }]}>
+                Equipo
+              </Text>
               <TouchableOpacity
                 style={styles.projectTeamWrapper}
                 onPress={() => {
@@ -366,49 +509,83 @@ function ProyectDetailScreen(
           </View>
           {/*<Text style={styles.projectStatus}>{10}</Text>*/}
         </View>
-      </View>
 
-      {/* Contenido */}
-      <View style={styles.content}>
-        {members ? (
-          members.map((member) => (
-            <TouchableOpacity
-              style={[styles.teamCard, { backgroundColor: colors.background }]}
-            >
-              <View style={styles.teamIcons}>
-                <Ionicons
-                  name="person-circle"
-                  size={50}
-                  color={colors.text}
-                  style={{ margin: 0, padding: 0 }}
-                />
-              </View>
+        {/* Add task*/}
+        <View style={styles.taskContainer}>
+          {/* Izquierda - Agregar Tarea */}
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TouchableOpacity>
+              <Text style={[styles.taskText, { color: colors.text }]}>
+                Agregar tarea
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={toggleModal}>
+              <Ionicons name="add-circle" size={30} color={colors.tint} />
+            </TouchableOpacity>
+          </View>
 
-              <View style={styles.teamInfo}>
-                <Text style={[styles.teamName, { color: colors.text }]}>
-                  {member.nombre}
-                </Text>
-                <Text
+          {/* Derecha - Desplegable para elegir tareas */}
+          <View style={{ flexDirection: "row" }}>
+            <DropDownPicker
+              placeholder="Tareas"
+              placeholderStyle={{ fontSize: 15 }}
+              open={open}
+              value={value}
+              items={items}
+              setOpen={setOpen}
+              setValue={setValue}
+              setItems={setItems}
+              containerStyle={{
+                width: 160,
+              }}
+              style={{
+                borderColor: "transparent",
+                backgroundColor: "transparent",
+              }}
+              dropDownContainerStyle={{
+                backgroundColor: "#fff",
+                borderColor: "transparent",
+              }}
+              labelStyle={{
+                fontSize: 15,
+                fontFamily: "Poppins_Regular",
+              }}
+              onChangeValue={(item) => filterTasks(item)}
+            />
+          </View>
+        </View>
+        {/* Lista de tareas */}
+        <View style={styles.content}>
+          <FlatList
+            data={filteredTasks}
+            keyExtractor={(item) => item.taskId.toString()}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => {navigation.navigate("Task", {
+                id: item.taskId, 
+                idProyecto: route2.params.projectId,
+                projectName: route2.params.projectName,
+                teamid: route2.params.teamid,
+                
+                })}}>
+                <View
                   style={[
-                    { color: colors.text, fontSize: 16, paddingLeft: 10 },
+                    styles.taskItem,
+                    { backgroundColor: colors.background },
                   ]}
                 >
-                  {member.rol}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))
-        ) : (
-          <Text
-            style={{
-              color: colors.text,
-              alignItems: "center",
-              textAlign: "center",
-            }}
-          >
-            El equipo no tiene integrantes
-          </Text>
-        )}
+                  <Text style={[styles.taskName, { color: colors.tint }]}>
+                    {item.taskName}
+                  </Text>
+                  <Ionicons
+                    name="ios-arrow-forward"
+                    size={24}
+                    color={colors.tint}
+                  />
+                </View>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
       </View>
 
       {/* Modal de Edición de Nombre */}
@@ -456,7 +633,52 @@ function ProyectDetailScreen(
         </View>
       </Modal>
 
-      {/* Modal de integrante */}
+      {/* Modal de task */}
+      <Modal isVisible={isCreateModalVisible}>
+      <View style={styles.modalContainer}>
+        <Text style={styles.modalTitle}>Agregar Tarea</Text>
+        <TextInput
+          style={styles.modalInput}
+          onChangeText={(text) => setNameTask(text)}
+          placeholder="Nombre de la tarea"
+          value={nameTask}
+        />
+
+       {/* Sección de selección de fecha */}
+       <TouchableOpacity onPress={showDatepicker}>
+          <Text style={{marginBottom: 15}}>Fecha de Vencimiento: {dueDate.toDateString()}</Text>
+        </TouchableOpacity>
+
+        {/* Mostrar el selector de fecha si es visible */}
+        {showDatePicker && (
+          <DateTimePicker
+            value={dueDate}
+            mode="date"
+            display="default"
+            onChange={onChangeDate}
+          />
+        )}
+        
+
+        {/* Botones de acción */}
+        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+          <TouchableOpacity
+            style={[styles.modalButton, { backgroundColor: colors.tint, marginHorizontal: 12 }]}
+            onPress={() => (create_task())}
+          >
+            <Text style={styles.modalButtonText}>Guardar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.modalButton, { backgroundColor: colors.tint }]}
+            onPress={closeCreateModal}
+          >
+            <Text style={styles.modalButtonText}>Cancelar</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      
+    </Modal>
+    {/*
       <Modal isVisible={isCreateModalVisible}>
         <View
           style={[
@@ -472,7 +694,7 @@ function ProyectDetailScreen(
               styles.modalInput,
               { color: colors.text, borderColor: colors.tint },
             ]}
-            onChangeText={(text) => setMemberEmail(text)}
+            onChangeText={(text) => setNameTask(text)}
           />
           <View style={{ flexDirection: "row", justifyContent: "center" }}>
             <TouchableOpacity
@@ -480,7 +702,7 @@ function ProyectDetailScreen(
                 styles.modalButton,
                 { backgroundColor: colors.tint, marginHorizontal: 12 },
               ]}
-              onPress={() => add_member()}
+              onPress={() => add_task()}
             >
               <Text style={[styles.modalButtonText, { color: "white" }]}>
                 Guardar
@@ -496,7 +718,7 @@ function ProyectDetailScreen(
             </TouchableOpacity>
           </View>
         </View>
-      </Modal>
+            </Modal>*/}
 
       {/* Modal de delete */}
       <Modal isVisible={isdeleteModalVisible}>
@@ -520,7 +742,7 @@ function ProyectDetailScreen(
               },
             ]}
           >
-            ¿Estás seguro de que deseas eliminar este equipo?
+            ¿Estás seguro de que deseas eliminar este proyecto?
           </Text>
           <View style={{ flexDirection: "row", justifyContent: "center" }}>
             <TouchableOpacity
@@ -545,6 +767,9 @@ function ProyectDetailScreen(
           </View>
         </View>
       </Modal>
+
+      <CreateTaskModal isVisible={isModalVisible} onClose={toggleModal} />
+      
     </View>
   );
 }
@@ -559,6 +784,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 16,
+    maxHeight: 380,
   },
   teamCard: {
     marginBottom: 16,
@@ -747,6 +973,35 @@ const styles = StyleSheet.create({
   projectTabText: { fontSize: 16, paddingVertical: 7, textAlign: "center" },
   activeProjectTabText: {
     color: "#fff",
+  },
+  taskContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 13,
+    paddingHorizontal: 16,
+    marginTop: 14,
+    marginBottom: 0,
+  },
+  taskText: {
+    paddingRight: 8,
+    fontFamily: "Poppins_Bold",
+    fontSize: 16,
+  },
+  taskItem: {
+    marginBottom: 16,
+    borderRadius: 12,
+    backgroundColor: "lightgray",
+    padding: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    height: 80,
+  },
+  taskName: {
+    fontFamily: "Poppins_Regular",
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });
 

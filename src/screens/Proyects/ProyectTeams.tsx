@@ -48,10 +48,10 @@ function TeamsProjectScreen(
   const [memberEmail, setMemberEmail] = useState("");
   const [members, setMembers] = useState([]);
   const [teams, setTeams] = useState([]);
-  const [teamName, setTeamName] = useState(""); 
+  const [teamName, setTeamName] = useState("");
   const [selector, setSelector] = useState("");
   const [teamProject, setTeamProject] = useState([]);
-const [teamid, setTeamid] = useState("");
+  const [teamid, setTeamid] = useState("");
 
   const add_team_m = gql`
     mutation agregarEquipo($agregarEquipo: AgregarEquipo!) {
@@ -133,7 +133,6 @@ const [teamid, setTeamid] = useState("");
         route2.params.teamid = selector;
         setTeamid(selector);
         refetchTeamData2();
-
       } else {
         showToastErrorMember();
         closeCreateModal();
@@ -143,11 +142,11 @@ const [teamid, setTeamid] = useState("");
   });
 
   useEffect(() => {
-    if(route2.params.teamid == null){
+    if (route2.params.teamid == null) {
       setTeamProject(Array.from([]));
     }
     setTeamid(route2.params.teamid ? route2.params.teamid.toString() : null);
-    
+
     if (!loading && !error && data) {
       const jsonObject = JSON.stringify(data.showInfoEquipo);
       const jsonObject2 = JSON.parse(jsonObject);
@@ -181,10 +180,9 @@ const [teamid, setTeamid] = useState("");
 
   useFocusEffect(
     React.useCallback(() => {
-
       refetchTeamData();
       refetchTeamData2();
-    }, [route2.params.teamid, teamid])
+    }, [])
   );
 
   const showToastSuccessMember = () => {
@@ -371,6 +369,7 @@ const [teamid, setTeamid] = useState("");
           </Text>
           <RNPickerSelect
             onValueChange={(value) => setSelector(value)}
+            useNativeAndroidPickerStyle={false}
             items={teams.map((team) => {
               return {
                 label: team.nombre,
@@ -480,6 +479,9 @@ const [teamid, setTeamid] = useState("");
                   </Text>
                 </View>
               </View>
+              <TouchableOpacity onPress={opendeleteModal}>
+                <Ionicons name="close" size={24} color={colors.tint} />
+              </TouchableOpacity>
               <TouchableOpacity>
                 <Ionicons
                   name="ios-arrow-forward"

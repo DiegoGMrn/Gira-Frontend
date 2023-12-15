@@ -17,7 +17,7 @@ import {
 } from "@react-navigation/native";
 import Modal from "react-native-modal";
 import Toast from "react-native-toast-message";
-
+import RNPickerSelect from "react-native-picker-select";
 interface TeamDetailScreenProps {
   navigation: NavigationProp<any>;
 }
@@ -45,6 +45,10 @@ function TeamDetailScreen(
   const [newName2, setNewName2] = useState(initialTeamName);
   const [memberEmail, setMemberEmail] = useState("");
   const [members, setMembers] = useState([]);
+  const [selector, setSelector] = useState("");
+  const [roles, setRoles] = useState([]);
+  const [isRolModalVisible, setRolModalVisible] = useState(false);
+  const [correoElegido, setCorreoElegido] = useState("");
 
   const update_name_m = gql`
     mutation updateEquipoName($updateNameInput: UpdateEquipoNameInput!) {
@@ -70,6 +74,18 @@ function TeamDetailScreen(
     }
   `;
 
+  const get_roles_m = gql`
+    query showInfoRoles {
+      showInfoRoles
+    }
+  `;
+
+  const add_rol_m = gql`
+    mutation agregarRol($agregarRol: AgregarRol!) {
+      agregarRol(agregarRol: $agregarRol)
+    }
+  `;
+
   const {
     loading,
     error,
@@ -77,6 +93,37 @@ function TeamDetailScreen(
     refetch: refetchMembers,
   } = useQuery(get_members_m, {
     variables: { mostrarIntegrantes: { nombreEquipo: route2.params.teamName } },
+  });
+
+  const {
+    loading: loading2,
+    error: error2,
+    data: data2,
+    refetch: refetchRoles,
+  } = useQuery(get_roles_m);
+
+
+  const [add_rol] = useMutation(add_rol_m, {
+    variables: {
+      agregarRol: {
+        correoIntegrante: correoElegido,
+        idRol: selector,
+        equipoId: parseFloat(route2.params.teamId),
+      },
+    },
+    onCompleted: (data) => {
+      const response = data.agregarRol;
+
+      if (response == true) {
+
+        closeRolModal();
+        refetchMembers();
+      } else {
+ 
+        closeRolModal();
+        refetchMembers();
+      }
+    },
   });
 
   const [delete_team] = useMutation(delete_team_m, {
@@ -138,10 +185,12 @@ function TeamDetailScreen(
         setNewName2(newName);
       } else {
         showToastError();
-        closeCreateModal();
+        closeEditModal();
       }
     },
   });
+
+  
 
   useEffect(() => {
     setNewName(route2.params.teamName);
@@ -157,6 +206,31 @@ function TeamDetailScreen(
       setMembers(jsonObject);
     }
   }, [route2.params.teamName, loading, error, data]);
+
+  useEffect(() => {
+    if (!loading2 && !error2 && data2) {
+      const jsonObject = JSON.parse(data2.showInfoRoles);
+      console.log("json3", jsonObject);
+      //const jsonObject2 = JSON.parse(jsonObject);
+      //console.log("json 2", jsonObject2);
+      //var members = JSON.parse(jsonObject2.showInfoEquipo);
+      //console.log("members", members);
+      setRoles(jsonObject);
+    }
+  }, [loading2, error2, data2]);
+
+
+  const openRolModal = (email:string) => {
+    setCorreoElegido(email);
+    setRolModalVisible(true);
+  };
+
+  const closeRolModal = () => {
+    setCorreoElegido("");
+    setRolModalVisible(false);
+  };
+
+
 
   const showToastSuccess = () => {
     Toast.show({
@@ -435,14 +509,59 @@ function TeamDetailScreen(
           </View>
         </View>
       </Modal>
+      {/* Modal Roles*/}
+      <Modal isVisible={isRolModalVisible}>
+        <View
+          style={[
+            styles.modalContainer,
+            { backgroundColor: colors.background  },
+          ]}
+        >
+          <Text style={[styles.modalTitle, { color: colors.text }]}>
+            Agregar Rol
+          </Text>
+          <RNPickerSelect
+            useNativeAndroidPickerStyle={false}
+            onValueChange={(value) => setSelector(value)}
+            items={roles.map((rol) => {
+              return {
+                label: rol.nombre,
+                value: rol.id,
+              };
+            })}
+          />
+          <View style={{ flexDirection: "row", justifyContent: "center" }}>
+            <TouchableOpacity
+              style={[
+                styles.modalButton,
+                { backgroundColor: colors.tint, marginHorizontal: 12 },
+              ]}
+              onPress={() => add_rol()}
+            >
+              <Text style={[styles.modalButtonText, { color: "white" }]}>
+                Guardar
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.modalButton, { backgroundColor: colors.tint }]}
+              onPress={closeRolModal}
+            >
+              <Text style={[styles.modalButtonText, { color: "white" }]}>
+                Cancelar
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Contenido */}
       <View style={styles.content}>
         {members ? (
           members.map((member) => (
             <TouchableOpacity
-            key={member.correo}
+              key={member.correo}
               style={[styles.teamCard, { backgroundColor: colors.background }]}
+              onPress={() => (openRolModal(member.correo))}
             >
               <View style={styles.teamIcons}>
                 <Ionicons
@@ -454,10 +573,14 @@ function TeamDetailScreen(
               </View>
 
               <View style={styles.teamInfo}>
-                  <Text style={[styles.teamName, { color: colors.text }]}>
-                    {member.nombre}
-                  </Text>
-                <Text style={[{ color: colors.text, fontSize: 16, paddingLeft: 10 }]}>
+                <Text style={[styles.teamName, { color: colors.text }]}>
+                  {member.nombre}
+                </Text>
+                <Text
+                  style={[
+                    { color: colors.text, fontSize: 16, paddingLeft: 10 },
+                  ]}
+                >
                   {member.rol}
                 </Text>
               </View>

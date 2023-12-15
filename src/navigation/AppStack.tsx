@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -25,36 +25,46 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { Shadow } from "react-native-shadow-2";
 import { NavigationProp } from "@react-navigation/native";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { Task } from "../screens/Task/Task";
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const BottomTab = createBottomTabNavigator();
 
 function CustomTabBar({ navigation }: BottomTabBarProps) {
-
   const { dark, colors, setScheme } = useTheme();
-  
+
 
   return (
-    <View style={styles.menuWrapper}>
-      <Shadow distance={3} style={{ alignSelf: "stretch" }}>
-        <View
-          style={[styles.menuContainer, { backgroundColor: colors.background }]}
-        >
-          <TouchableOpacity onPress={() => navigation.navigate("Home")}>
-            <Ionicons name="home" size={30} color={colors.text} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("Proyects")}>
-            <Ionicons name="folder" size={30} color={colors.text} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("Teams")}>
-            <Ionicons name="people" size={30} color={colors.text} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-            <Ionicons name="person-circle" size={30} color={colors.text} />
-          </TouchableOpacity>
+    <>
+      {navigation.getState().index == 10 ? (
+        <View></View>
+      ) : (
+        <View style={styles.menuWrapper}>
+          <Shadow distance={3} style={{ alignSelf: "stretch" }}>
+            <View
+              style={[
+                styles.menuContainer,
+                { backgroundColor: colors.background },
+              ]}
+            >
+              <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+                <Ionicons name="home" size={30} color={colors.text} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate("Proyects")}>
+                <Ionicons name="folder" size={30} color={colors.text} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate("Teams")}>
+                <Ionicons name="people" size={30} color={colors.text} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+                <Ionicons name="person-circle" size={30} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+          </Shadow>
         </View>
-      </Shadow>
-    </View>
+      )}
+    </>
   );
 }
 
@@ -79,6 +89,7 @@ const BottomStack = () => {
       <BottomTab.Screen name="Profile" component={ProfileScreen} />
       <BottomTab.Screen name="Settings" component={SettingsScreen} />
       <BottomTab.Screen name="ChangepwdApp" component={ChangepwdAppScreen} />
+      <BottomTab.Screen name="Task" component={Task} />
     </BottomTab.Navigator>
   );
 };
@@ -87,7 +98,6 @@ function AppStack() {
   const { dark, colors, setScheme } = useTheme();
 
   return (
-  
     <Stack.Navigator initialRouteName="BottomStack">
       <Stack.Screen
         name="BottomStack"
@@ -97,8 +107,6 @@ function AppStack() {
     </Stack.Navigator>
   );
 }
-
-
 
 const styles = StyleSheet.create({
   menuWrapper: {

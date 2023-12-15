@@ -256,6 +256,7 @@ function EditTeamProyectScreen(
 
   console.log("nombre", route2.params.teamName);
   console.log("nombre2", newName2);
+  console.log("teamid", route2.params.teamId);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background2 }}>
@@ -282,7 +283,7 @@ function EditTeamProyectScreen(
               navigation.navigate("TeamsProject", {
                 projectId: route2.params.projectId,
                 projectName: route2.params.projectName,
-                teamid: route2.params.teamid,
+                teamid: route2.params.teamId,
               });
             }}
           >
