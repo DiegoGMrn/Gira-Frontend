@@ -207,7 +207,7 @@ function ProyectScreen({ navigation }: ProyectScreenProps) {
           proyects.map((proyect) => (
             <TouchableOpacity
               key={proyect.id}
-              style={[styles.teamCard, { backgroundColor: colors.background }]}
+              style={[styles.teamCard, { backgroundColor: colors.background, borderColor: colors.tint, borderWidth: 1 }]}
               onPress={() => {
                 navigation.navigate("ProyectDetail", {
                   projectId: proyect.id,

@@ -31,7 +31,7 @@ interface TaskScreenRoute{
       id: string;
       idProyecto: string;
       projectName: string;
-      teamid: string | "0";
+      teamid: string;
     }
   }
 }
@@ -50,6 +50,7 @@ export function Task({ navigation }: TaskScreenProps, { route }: TaskScreenRoute
   const [newName, setNewName] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [isdeleteModalVisible, setdeleteModalVisible] = useState(false);
+  const [isCompleteModalVisible, setCompleteModalVisible] = useState(false);
   /*const selectedTask = {
     title: "Task Title",
     progress: 50,
@@ -74,10 +75,34 @@ export function Task({ navigation }: TaskScreenProps, { route }: TaskScreenRoute
   `;
 
   const update_name_m = gql`
-    mutation updateEquipoName($updateNameInput: UpdateEquipoNameInput!) {
-      updateEquipoName(updateNameInput: $updateNameInput)
+    mutation updateNameTask($updateTaskNameInput: UpdateTaskNameInput!) {
+      updateNameTask(updateTaskNameInput: $updateTaskNameInput)
     }
   `;
+
+  const update_state_m = gql`
+    mutation updateStateTask($updateTaskStateInput: UpdateTaskStateInput!) {
+      updateStateTask(updateTaskStateInput: $updateTaskStateInput)
+  }
+  `;
+
+  const [update_task] = useMutation(update_state_m, {
+    variables: {
+      updateTaskStateInput: {
+        idTarea: route2.params.id,
+      },
+    },
+    onCompleted: (data) => {
+      const confirm = data.updateStateTask;
+      console.log("confirm", confirm)
+      if (confirm == true) {
+        closeCompleteModal()
+      } else {
+        console.log("error");
+        closeCompleteModal()
+      }
+    },
+  });
 
   const [createComment] = useMutation(createComment_m, {
     variables: {
@@ -182,19 +207,19 @@ export function Task({ navigation }: TaskScreenProps, { route }: TaskScreenRoute
 
   const [edit_name] = useMutation(update_name_m, {
     variables: {
-      updateNameInput: {
-        antiguoNombreEquipo: route2.params.teamName,
-        nuevoNombreEquipo: newName,
+      updateTaskNameInput: {
+        idTarea: route2.params.id,
+        nuevoNombre: newName,
       },
     },
     onCompleted: (data) => {
-      const response = data.updateEquipoName;
+      const response = data.UpdateTaskNameInput;
       console.log(response);
       if (response == true) {
- 
+        refetch();
         closeEditModal();
       } else {
-
+        refetch();
         closeEditModal();
       }
     },
@@ -240,6 +265,15 @@ export function Task({ navigation }: TaskScreenProps, { route }: TaskScreenRoute
 
   const closedeleteModal = () => {
     setdeleteModalVisible(false);
+  };
+
+  const openCompleteModal = () => {
+    setCompleteModalVisible(true);
+  };
+
+  const closeCompleteModal = () => {
+    setCompleteModalVisible(false);
+
   };
 
   const delete_task_m = gql`
@@ -315,7 +349,7 @@ export function Task({ navigation }: TaskScreenProps, { route }: TaskScreenRoute
               <Ionicons name="close" style={{ paddingTop: 5, paddingRight: 5 }} size={24} color={colors.tint} />
             </TouchableOpacity>
 
-          <TouchableOpacity>
+          <TouchableOpacity onPress={openCompleteModal}>
             <Ionicons
                   name="checkmark-sharp"
                   style={{ paddingTop: 5, paddingRight: 5 }}
@@ -326,7 +360,7 @@ export function Task({ navigation }: TaskScreenProps, { route }: TaskScreenRoute
         </View>
       </View>
 
-      <View style={styles.container}>
+      <View style={[styles.container, {backgroundColor: colors.background2}]}>
         <View style={styles.topWrapper}>
           <Text style={styles.taskTitle}>{selectedTask?.title}</Text>
           <TouchableOpacity style={[styles.editIcon, {marginTop: 0}]} onPress={openEditModal} >
@@ -544,6 +578,54 @@ export function Task({ navigation }: TaskScreenProps, { route }: TaskScreenRoute
             <TouchableOpacity
               style={[styles.modalButton, { backgroundColor: colors.tint }]}
               onPress={closedeleteModal}
+            >
+              <Text style={[styles.modalButtonText, { color: "white" }]}>
+                No
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal de confirmar tarea */}
+      <Modal isVisible={isCompleteModalVisible}>
+        <View
+          style={[
+            styles.modalContainer,
+            { backgroundColor: colors.background },
+          ]}
+        >
+          <Text style={[styles.modalTitle, { color: colors.text }]}>
+            Completar Tarea
+          </Text>
+          <Text
+            style={[
+              styles.modalInput,
+              {
+                color: colors.text,
+                borderWidth: 0,
+                alignItems: "center",
+                alignContent: "center",
+              },
+            ]}
+          >
+            ¿Estás seguro de que deseas completar esta tarea?
+          </Text>
+          <View style={{ flexDirection: "row", justifyContent: "center" }}>
+            <TouchableOpacity
+              style={[
+                styles.modalButton,
+                { backgroundColor: colors.tint, marginHorizontal: 12 },
+              ]}
+              onPress={() => update_task()}
+            >
+              <Text style={[styles.modalButtonText, { color: "white" }]}>
+                Sí
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.modalButton, { backgroundColor: colors.tint }]}
+              onPress={closeCompleteModal}
             >
               <Text style={[styles.modalButtonText, { color: "white" }]}>
                 No

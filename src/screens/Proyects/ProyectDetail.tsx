@@ -150,7 +150,7 @@ function ProyectDetailScreen(
   const [delete_team] = useMutation(delete_proyect_m, {
     variables: {
       deleteProyectoInput: {
-        name: newName2,
+        name: route2.params.projectName,
       },
     },
     onCompleted: (data) => {
@@ -258,6 +258,13 @@ function ProyectDetailScreen(
     }*/
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      setNewName(route2.params.projectName);
+      setNewName2(route2.params.projectName);
+      refetch();
+    }, [])
+  );
   useEffect(() => {
     //console.log("idproyecto", route2.params.projectId);
     if(!loading2 && !error2 && data2){
@@ -279,13 +286,15 @@ function ProyectDetailScreen(
     //setFilteredTasks(initialTasks);
   }, [loading2, error2, data2]);
 
+
+
   const filterTasks = (filter) => {
     console.log("filter", filter);
     if (filter === "Tareas") {
       setFilteredTasks(tasks);
     } else {
       const filtered = tasks.filter((task) =>
-        filter === "Completadas" ? task.completed : !task.completed
+        filter === "Completadas" ? task.estado : !task.estado
       );
       setFilteredTasks(filtered);
     }
@@ -452,7 +461,7 @@ function ProyectDetailScreen(
         >
           <View style={styles.projectTitleWrapper}>
             <Text style={[styles.projectTitle, { color: colors.text }]}>
-              {newName2}
+              {route2.params.projectName}
             </Text>
             {/*<TouchableOpacity style={styles.editIcon} onPress={openEditModal}>
               <Ionicons name="ios-create" size={20} color={colors.tint} />
@@ -570,7 +579,7 @@ function ProyectDetailScreen(
                 <View
                   style={[
                     styles.taskItem,
-                    { backgroundColor: colors.background },
+                    { backgroundColor: colors.background, borderColor: colors.tint, borderWidth: 1 },
                   ]}
                 >
                   <Text style={[styles.taskName, { color: colors.tint }]}>
@@ -729,7 +738,7 @@ function ProyectDetailScreen(
           ]}
         >
           <Text style={[styles.modalTitle, { color: colors.text }]}>
-            Eliminar Equipo
+            Eliminar Proyecto
           </Text>
           <Text
             style={[

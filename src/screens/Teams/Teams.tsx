@@ -201,7 +201,7 @@ function TeamScreen({ navigation }: TeamScreenProps) {
           teams.map((team) => (
             <TouchableOpacity
               key={team.id}
-              style={[styles.teamCard, { backgroundColor: colors.background }]}
+              style={[styles.teamCard, { backgroundColor: colors.background, borderColor: colors.tint, borderWidth: 1 }]}
               onPress={() => {
                 navigation.navigate("TeamDetail", {
                   teamId: team.id,
